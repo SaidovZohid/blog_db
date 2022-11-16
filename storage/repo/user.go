@@ -22,3 +22,14 @@ type UserStorageI interface {
 	Update(u *User) (*User, error)
 	Delete(user_id int64) error
 }
+
+type GetAllUserParams struct {
+	Limit int32
+	Page int32
+	Search string
+}
+
+type GetAllUsersResult struct {
+	Users []*User
+	Count int32
+}

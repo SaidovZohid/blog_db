@@ -2,6 +2,7 @@ package postgres
 
 import (
 	"database/sql"
+	"fmt"
 
 	"github.com/SaidovZohid/blog_db/storage/repo"
 	"github.com/jmoiron/sqlx"
@@ -180,4 +181,14 @@ func (ur *userRepo) Delete(user_id int64) error {
 	}
 
 	return nil
+}
+
+func (ur *userRepo) GetAll(params *repo.GetAllUserParams) (*repo.GetAllUsersResult, error) {
+	result := repo.GetAllUsersResult{
+		Users: make([]*repo.User, 0),
+	}
+
+	offset := (params.Page - 1) * params.Limit
+
+	limit := fmt.Sprintf(" LIMIT %d OFFSET %d", params.Limit, offset)
 }
