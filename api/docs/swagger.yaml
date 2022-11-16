@@ -1,5 +1,32 @@
 basePath: /v1
 definitions:
+  models.Category:
+    properties:
+      created_at:
+        type: string
+      id:
+        type: integer
+      title:
+        type: string
+    type: object
+  models.CreateCategoryRequest:
+    properties:
+      title:
+        type: string
+    type: object
+  models.CreatePostRequest:
+    properties:
+      category_id:
+        type: integer
+      description:
+        type: string
+      image_url:
+        type: string
+      title:
+        type: string
+      user_id:
+        type: integer
+    type: object
   models.CreateUserRequest:
     properties:
       email:
@@ -21,6 +48,27 @@ definitions:
       username:
         type: string
     type: object
+  models.Post:
+    properties:
+      category_id:
+        type: integer
+      created_at:
+        type: string
+      description:
+        type: string
+      id:
+        type: integer
+      image_url:
+        type: string
+      title:
+        type: string
+      updated_at:
+        type: string
+      user_id:
+        type: integer
+      views_count:
+        type: integer
+    type: object
   models.ResponseError:
     properties:
       error:
@@ -30,6 +78,21 @@ definitions:
     properties:
       success:
         type: string
+    type: object
+  models.UpdatePostRequest:
+    properties:
+      category_id:
+        type: integer
+      description:
+        type: string
+      image_url:
+        type: string
+      title:
+        type: string
+      user_id:
+        type: integer
+      views_count:
+        type: integer
     type: object
   models.User:
     properties:
@@ -61,6 +124,220 @@ info:
   title: Swagger for blog api
   version: "2.0"
 paths:
+  /categories:
+    post:
+      consumes:
+      - application/json
+      description: Create a category
+      parameters:
+      - description: Category
+        in: body
+        name: category
+        required: true
+        schema:
+          $ref: '#/definitions/models.CreateCategoryRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/models.Category'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/models.ResponseError'
+      summary: Create a category
+      tags:
+      - category
+  /categories/{id}:
+    get:
+      consumes:
+      - application/json
+      description: Get category by it's id
+      parameters:
+      - description: ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/models.Category'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/models.ResponseError'
+      summary: Get category by it's id
+      tags:
+      - category
+  /categories/delete/{id}:
+    delete:
+      consumes:
+      - application/json
+      description: Update category by it's id
+      parameters:
+      - description: ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/models.ResponseSuccess'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/models.ResponseError'
+      summary: Update category by it's id
+      tags:
+      - category
+  /categories/update/{id}:
+    put:
+      consumes:
+      - application/json
+      description: Update category by it's id
+      parameters:
+      - description: ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: Category
+        in: body
+        name: category
+        required: true
+        schema:
+          $ref: '#/definitions/models.CreateCategoryRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/models.Category'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/models.ResponseError'
+      summary: Update category by it's id
+      tags:
+      - category
+  /posts:
+    post:
+      consumes:
+      - application/json
+      description: Create a post
+      parameters:
+      - description: Post
+        in: body
+        name: post
+        required: true
+        schema:
+          $ref: '#/definitions/models.CreatePostRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/models.Post'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/models.ResponseError'
+      summary: Create a post
+      tags:
+      - post
+  /posts/{id}:
+    get:
+      consumes:
+      - application/json
+      description: Create a post with it's id
+      parameters:
+      - description: ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/models.Category'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/models.ResponseError'
+      summary: Get a post with it's id
+      tags:
+      - post
+  /posts/delete/{id}:
+    delete:
+      consumes:
+      - application/json
+      description: Create a post
+      parameters:
+      - description: ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/models.ResponseSuccess'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/models.ResponseError'
+      summary: Delete a post
+      tags:
+      - post
+  /posts/update/{id}:
+    put:
+      consumes:
+      - application/json
+      description: Update post with it's id as param
+      parameters:
+      - description: ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: Post
+        in: body
+        name: post
+        required: true
+        schema:
+          $ref: '#/definitions/models.UpdatePostRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/models.Category'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/models.ResponseError'
+      summary: Update post with it's id as param
+      tags:
+      - post
   /users:
     post:
       consumes:

@@ -28,7 +28,7 @@ func main() {
 	if err != nil {
 		log.Fatalf("failed to connect to database: %v", err)
 	}
-
+	fmt.Println("Configuration: ", cfg)
 	fmt.Println("Connected Succesfully!")
 
 	strg := storage.NewStoragePg(psqlConn)
