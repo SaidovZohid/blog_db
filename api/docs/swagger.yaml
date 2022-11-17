@@ -106,6 +106,52 @@ definitions:
       views_count:
         type: integer
     type: object
+  models.RegisterRequest:
+    properties:
+      email:
+        type: string
+      first_name:
+        maxLength: 50
+        minLength: 2
+        type: string
+      last_name:
+        maxLength: 50
+        minLength: 2
+        type: string
+      password:
+        maxLength: 16
+        minLength: 6
+        type: string
+      username:
+        maxLength: 30
+        minLength: 2
+        type: string
+    required:
+    - email
+    - first_name
+    - last_name
+    - password
+    - username
+    type: object
+  models.RegisterResponse:
+    properties:
+      access_token:
+        type: string
+      created_at:
+        type: string
+      email:
+        type: string
+      first_name:
+        type: string
+      id:
+        type: integer
+      last_name:
+        type: string
+      type:
+        type: string
+      username:
+        type: string
+    type: object
   models.ResponseError:
     properties:
       error:
@@ -161,6 +207,32 @@ info:
   title: Swagger for blog api
   version: "2.0"
 paths:
+  /auth/register:
+    post:
+      consumes:
+      - application/json
+      description: Create user with token key and get token key.
+      parameters:
+      - description: Data
+        in: body
+        name: data
+        required: true
+        schema:
+          $ref: '#/definitions/models.RegisterRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.RegisterResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/models.ResponseError'
+      summary: Create user with token key and get token key.
+      tags:
+      - register
   /categories:
     get:
       consumes:

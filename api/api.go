@@ -46,6 +46,8 @@ func New(opt *RoutetOptions) *gin.Engine {
 		apiV1.PUT("/posts/update/:id", handlerV1.UpdatePost)
 		apiV1.DELETE("/posts/delete/:id", handlerV1.DeletePost)
 		apiV1.GET("/posts", handlerV1.GetAllPosts)
+
+		apiV1.POST("/auth/register", handlerV1.Register)
 		
 		router.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
 	}
