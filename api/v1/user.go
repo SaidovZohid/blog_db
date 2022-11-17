@@ -196,3 +196,63 @@ func (h *handlerV1) DeleteUser(c *gin.Context) {
 		Success: "Successfully deleted!",
 	})
 }
+
+// @Router /users [get]
+// @Summary Get user by giving limit, page and search for something. 
+// @Description Get user by giving limit, page and search for something. 
+// @Tags user
+// @Accept json
+// @Produce json
+// @Param filter query models.GetAllParams false "Filter"
+// @Success 201 {object} models.GetAllUsersResponse
+// @Failure 500 {object} models.ResponseError
+func (h *handlerV1) GetAllUsers(c *gin.Context) {
+	params, err := validateGetAllParams(c)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, errRespone(err))
+		return
+	}
+
+	result, err := h.Storage.User().GetAll(&repo.GetAllUserParams{
+		Limit: int32(params.Limit),
+		Page: int32(params.Page),
+		Search: params.Search,
+	})
+
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, errRespone(err))
+		return
+	}
+
+	c.JSON(http.StatusOK, getUsersResponse(result))
+}
+
+func getUsersResponse(data *repo.GetAllUsersResult) *models.GetAllUsersResponse {
+	response := models.GetAllUsersResponse{
+		Users: make([]*models.User, 0),
+		Count: data.Count,
+	}
+
+	for _, user := range data.Users {
+		u := parseUserModel(user)
+		response.Users = append(response.Users, &u)
+	}
+
+	return &response
+}
+
+
+func parseUserModel(user *repo.User) models.User {
+	return models.User{
+		ID:              user.ID,
+		FirstName:       user.FirstName,
+		LastName:        user.LastName,
+		PhoneNumber:     user.PhoneNumber,
+		Email:           user.Email,
+		Gender:          user.Gender,
+		UserName:        user.UserName,
+		ProfileImageUrl: user.ProfileImageUrl,
+		Type:            user.Type,
+		CreatedAt:       user.CreatedAt,
+	}
+}

@@ -191,4 +191,69 @@ func (ur *userRepo) GetAll(params *repo.GetAllUserParams) (*repo.GetAllUsersResu
 	offset := (params.Page - 1) * params.Limit
 
 	limit := fmt.Sprintf(" LIMIT %d OFFSET %d", params.Limit, offset)
+
+	filter := ""
+
+	if params.Search != "" {
+		str := "%" + params.Search + "%"
+		filter = fmt.Sprintf(`
+			WHERE first_name ILIKE '%s' OR last_name ILIKE '%s' OR phone_number ILIKE '%s' OR email ILIKE '%s' OR username ILIKE '%s'
+		`, str, str, str, str, str)
+	}
+
+	query := `
+		SELECT 
+			id,
+			first_name,
+			last_name,
+			phone_number,
+			email,
+			gender,
+			password,
+			username,
+			profile_image_url,
+			type,
+			created_at
+		FROM users
+	` + filter  + `
+		ORDER BY created_at DESC
+	` + limit
+
+	rows, err := ur.db.Query(query)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	for rows.Next() {
+		var user repo.User
+		err := rows.Scan(
+			&user.ID,
+			&user.FirstName,
+			&user.LastName,
+			&user.PhoneNumber,
+			&user.Email,
+			&user.Gender,
+			&user.Password,
+			&user.UserName,
+			&user.ProfileImageUrl,
+			&user.Type,
+			&user.CreatedAt,
+		)
+		if err != nil {
+			return nil, err
+		}
+
+		result.Users = append(result.Users, &user)
+	}
+
+	queryCount := "SELECT count(1) FROM users " + filter
+
+	err = ur.db.QueryRow(queryCount).Scan(&result.Count)
+	
+	if err != nil {
+		return nil, err
+	}
+
+	return &result, nil
 }

@@ -27,3 +27,7 @@ type CreateUserRequest struct {
 	Password        string  `json:"password"`
 }
 
+type GetAllUsersResponse struct {
+	Users []*User `json:"users"`
+	Count int32   `json:"count"`
+}

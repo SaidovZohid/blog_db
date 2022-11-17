@@ -21,6 +21,7 @@ type UserStorageI interface {
 	Get(user_id int64) (*User, error)
 	Update(u *User) (*User, error)
 	Delete(user_id int64) error
+	GetAll(params *GetAllUserParams) (*GetAllUsersResult, error)
 }
 
 type GetAllUserParams struct {

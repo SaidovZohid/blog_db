@@ -33,6 +33,7 @@ func New(opt *RoutetOptions) *gin.Engine {
 	apiV1.GET("/users/:id", handlerV1.GetUser)
 	apiV1.PUT("/users/update/:id", handlerV1.UpdateUser)
 	apiV1.DELETE("/users/delete/:id", handlerV1.DeleteUser)
+	apiV1.GET("/users", handlerV1.GetAllUsers)
 
 	apiV1.POST("/categories", handlerV1.CreateCategory)
 	apiV1.GET("/categories/:id", handlerV1.GetCategory)
