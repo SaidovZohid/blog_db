@@ -1,6 +1,8 @@
 package postgres
 
 import (
+	"fmt"
+
 	"github.com/SaidovZohid/blog_db/storage/repo"
 	"github.com/jmoiron/sqlx"
 )
@@ -104,4 +106,60 @@ func (cr *categoryRepo) Delete(category_id int64) error {
 	}
 
 	return nil
+}
+
+func (ur *categoryRepo) GetAll(params *repo.GetAllCategoryParams) (*repo.GetAllCategoryResult, error) {
+	result := repo.GetAllCategoryResult{
+		Categories: make([]*repo.Category, 0),
+	}
+
+	offset := (params.Page - 1) * params.Limit
+
+	
+	limit := fmt.Sprintf(" LIMIT %d OFFSET %d", params.Limit, offset)
+	
+	filter := ""
+	if params.Search != "" {
+		filter = "WHERE title ILIKE '%s'" + "%" + params.Search + "%"
+	}
+
+	query := `
+		SELECT 
+			id,
+			title,
+			created_at
+		FROM categories
+	` + filter  + `
+		ORDER BY created_at DESC
+	` + limit
+
+	rows, err := ur.db.Query(query)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	for rows.Next() {
+		var category repo.Category
+		err := rows.Scan(
+			&category.ID,
+			&category.Title,
+			&category.CreatedAt,
+		)
+		if err != nil {
+			return nil, err
+		}
+
+		result.Categories = append(result.Categories, &category)
+	}
+
+	queryCount := "SELECT count(1) FROM categories " + filter
+
+	err = ur.db.QueryRow(queryCount).Scan(&result.Count)
+	
+	if err != nil {
+		return nil, err
+	}
+
+	return &result, nil
 }

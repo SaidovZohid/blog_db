@@ -209,7 +209,7 @@ func (h *handlerV1) DeleteUser(c *gin.Context) {
 func (h *handlerV1) GetAllUsers(c *gin.Context) {
 	params, err := validateGetAllParams(c)
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, errRespone(err))
+		c.JSON(http.StatusBadRequest, errRespone(err))
 		return
 	}
 

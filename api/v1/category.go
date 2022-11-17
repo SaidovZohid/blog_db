@@ -23,10 +23,10 @@ func (h *handlerV1) CreateCategory(ctx *gin.Context) {
 		req models.CreateCategoryRequest
 	)
 
-	err := ctx.ShouldBindJSON(&req)
+	err := ctx.ShouldBindJSON(&req)	
 
 	if err != nil {
-		ctx.JSON(http.StatusInternalServerError, models.ResponseError{
+		ctx.JSON(http.StatusBadRequest, models.ResponseError{
 			Error: err.Error(),
 		})
 		return
@@ -164,4 +164,51 @@ func (h *handlerV1) DeleteCategory(ctx *gin.Context) {
 	ctx.JSON(http.StatusOK, models.ResponseSuccess{
 		Success: "Succesfully deleted!",
 	})
+}
+
+// @Router /categories [get]
+// @Summary Get categories
+// @Description Get category
+// @Tags category
+// @Accept json
+// @Produce json
+// @Param filter query models.GetAllParams false "Filter"
+// @Success 201 {object} models.GetCategoriesResponse
+// @Failure 500 {object} models.ResponseError
+func (h *handlerV1) GetAllCategories(ctx *gin.Context) {
+	params, err := validateGetAllParams(ctx)
+
+	if err != nil {
+		ctx.JSON(http.StatusBadRequest,errRespone(err))
+		return
+	}
+
+	category, err := h.Storage.Category().GetAll(&repo.GetAllCategoryParams{
+		Limit: int32(params.Limit),
+		Page: int32(params.Page),
+		Search: params.Search,
+	})
+
+	if err != nil {
+		ctx.JSON(http.StatusInternalServerError, errRespone(err))
+		return
+	}
+
+	ctx.JSON(http.StatusOK, getCategoriesResponse(category))
+}
+
+func getCategoriesResponse(categories *repo.GetAllCategoryResult) *models.GetCategoriesResponse {
+	response := models.GetCategoriesResponse{
+		Categories:  make([]*models.Category, 0),
+		Count: int64(categories.Count),
+	}
+
+	for _, c := range categories.Categories {
+		response.Categories = append(response.Categories, &models.Category{
+			ID: c.ID,
+			Title: c.Title,
+			CreatedAt: c.CreatedAt,
+		})
+	}
+	return &response
 }

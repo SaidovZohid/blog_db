@@ -40,7 +40,7 @@ func main() {
 
 	err = apiServer.Run(cfg.HttpPort)
 	if err != nil {
-		log.Fatalf("failed to run server: %v", err)
+		log.Fatalf("failed to run server: %s", err)
 	}
 
 	log.Print("Server Stopped!")

@@ -23,10 +23,24 @@ type CreatePostRequest struct {
 }
 
 type UpdatePostRequest struct {
-	Title       string     `json:"title"`
-	Description string     `json:"description"`
-	ImageUrl    *string    `json:"image_url"`
-	UserID      int64      `json:"user_id"`
-	CategoryID  int64      `json:"category_id"`
-	ViewsCount  int32      `json:"views_count"`
+	Title       string  `json:"title"`
+	Description string  `json:"description"`
+	ImageUrl    *string `json:"image_url"`
+	UserID      int64   `json:"user_id"`
+	CategoryID  int64   `json:"category_id"`
+	ViewsCount  int32   `json:"views_count"`
+}
+
+type GetAllPostsParams struct {
+	Limit      int64  `json:"limit" binding:"required" default:"10"`
+	Page       int64  `json:"page" binding:"required" default:"1"`
+	Search     string `json:"search"`
+	UserID     int64  `json:"user_id"`
+	CategoryID int64  `json:"category_id"`
+	SortByDate string `json:"sort" enums:"desc,asc" default:"desc"`
+}
+
+type GetAllPostsResponse struct {
+	Posts []*Post `json:"posts"`
+	Count int64   `json:"count"`
 }

@@ -17,6 +17,54 @@ const docTemplate = `{
     "basePath": "{{.BasePath}}",
     "paths": {
         "/categories": {
+            "get": {
+                "description": "Get category",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "category"
+                ],
+                "summary": "Get categories",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "default": 10,
+                        "name": "limit",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "default": 1,
+                        "name": "page",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "name": "search",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Created",
+                        "schema": {
+                            "$ref": "#/definitions/models.GetCategoriesResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/models.ResponseError"
+                        }
+                    }
+                }
+            },
             "post": {
                 "description": "Create a category",
                 "consumes": [
@@ -180,6 +228,74 @@ const docTemplate = `{
             }
         },
         "/posts": {
+            "get": {
+                "description": "Get posts by giving limit, page and search for something.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "post"
+                ],
+                "summary": "Get posts by giving limit, page and search for something.",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "name": "category_id",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "default": 10,
+                        "name": "limit",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "default": 1,
+                        "name": "page",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "name": "search",
+                        "in": "query"
+                    },
+                    {
+                        "enum": [
+                            "desc",
+                            "asc"
+                        ],
+                        "type": "string",
+                        "default": "desc",
+                        "name": "sort",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "name": "user_id",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Created",
+                        "schema": {
+                            "$ref": "#/definitions/models.GetAllPostsResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/models.ResponseError"
+                        }
+                    }
+                }
+            },
             "post": {
                 "description": "Create a post",
                 "consumes": [
@@ -571,6 +687,9 @@ const docTemplate = `{
         },
         "models.CreateCategoryRequest": {
             "type": "object",
+            "required": [
+                "title"
+            ],
             "properties": {
                 "title": {
                     "type": "string"
@@ -599,6 +718,14 @@ const docTemplate = `{
         },
         "models.CreateUserRequest": {
             "type": "object",
+            "required": [
+                "email",
+                "first_name",
+                "gender",
+                "last_name",
+                "type",
+                "username"
+            ],
             "properties": {
                 "email": {
                     "type": "string"
@@ -613,7 +740,8 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "password": {
-                    "type": "string"
+                    "type": "string",
+                    "maxLength": 16
                 },
                 "phone_number": {
                     "type": "string"
@@ -629,6 +757,20 @@ const docTemplate = `{
                 }
             }
         },
+        "models.GetAllPostsResponse": {
+            "type": "object",
+            "properties": {
+                "count": {
+                    "type": "integer"
+                },
+                "posts": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/models.Post"
+                    }
+                }
+            }
+        },
         "models.GetAllUsersResponse": {
             "type": "object",
             "properties": {
@@ -640,6 +782,20 @@ const docTemplate = `{
                     "items": {
                         "$ref": "#/definitions/models.User"
                     }
+                }
+            }
+        },
+        "models.GetCategoriesResponse": {
+            "type": "object",
+            "properties": {
+                "categories": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/models.Category"
+                    }
+                },
+                "count": {
+                    "type": "integer"
                 }
             }
         },

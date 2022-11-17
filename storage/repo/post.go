@@ -19,4 +19,19 @@ type PostStorageI interface {
 	Get(post_id int64) (*Post, error)
 	Update(u *Post) (*Post, error)
 	Delete(post_id int64) error
+	GetAll(params *GetPostsParams) (*GetAllPostResult, error)
+}
+
+type GetAllPostResult struct {
+	Posts []*Post
+	Count int64
+}
+
+type GetPostsParams struct {
+	Limit int64
+	Page int64 
+	Search string
+	UserID int64
+	CategoryID int64
+	SortByDate string
 }

@@ -24,28 +24,31 @@ func New(opt *RoutetOptions) *gin.Engine {
 
 	handlerV1 := v1.New(&v1.HandlerV1Options{
 		Cfg:     opt.Cfg,
-		Storage: opt.Storage,
+		Storage: &opt.Storage,
 	})
 
 	apiV1 := router.Group("/v1")
-
-	apiV1.POST("/users", handlerV1.CreateUser)
-	apiV1.GET("/users/:id", handlerV1.GetUser)
-	apiV1.PUT("/users/update/:id", handlerV1.UpdateUser)
-	apiV1.DELETE("/users/delete/:id", handlerV1.DeleteUser)
-	apiV1.GET("/users", handlerV1.GetAllUsers)
-
-	apiV1.POST("/categories", handlerV1.CreateCategory)
-	apiV1.GET("/categories/:id", handlerV1.GetCategory)
-	apiV1.PUT("/categories/update/:id", handlerV1.UpdateCategory)
-	apiV1.DELETE("/categories/delete/:id", handlerV1.DeleteCategory)
-
-	apiV1.POST("/posts", handlerV1.CreatePost)
-	apiV1.GET("/posts/:id", handlerV1.GetPost)
-	apiV1.PUT("/posts/update/:id", handlerV1.UpdatePost)
-	apiV1.DELETE("/posts/delete/:id", handlerV1.DeletePost)
-
-	router.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
+	{
+		apiV1.POST("/users", handlerV1.CreateUser)
+		apiV1.GET("/users/:id", handlerV1.GetUser)
+		apiV1.PUT("/users/update/:id", handlerV1.UpdateUser)
+		apiV1.DELETE("/users/delete/:id", handlerV1.DeleteUser)
+		apiV1.GET("/users", handlerV1.GetAllUsers)
+		
+		apiV1.POST("/categories", handlerV1.CreateCategory)
+		apiV1.GET("/categories/:id", handlerV1.GetCategory)
+		apiV1.PUT("/categories/update/:id", handlerV1.UpdateCategory)
+		apiV1.DELETE("/categories/delete/:id", handlerV1.DeleteCategory)
+		apiV1.GET("/categories", handlerV1.GetAllCategories)
+		
+		apiV1.POST("/posts", handlerV1.CreatePost)
+		apiV1.GET("/posts/:id", handlerV1.GetPost)
+		apiV1.PUT("/posts/update/:id", handlerV1.UpdatePost)
+		apiV1.DELETE("/posts/delete/:id", handlerV1.DeletePost)
+		apiV1.GET("/posts", handlerV1.GetAllPosts)
+		
+		router.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
+	}
 
 	return router
 }

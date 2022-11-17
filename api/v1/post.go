@@ -191,3 +191,64 @@ func (h *handlerV1) DeletePost(ctx *gin.Context) {
 		Success: "Successfully deleted!",
 	})
 }
+
+// @Router /posts [get]
+// @Summary Get posts by giving limit, page and search for something. 
+// @Description Get posts by giving limit, page and search for something. 
+// @Tags post
+// @Accept json
+// @Produce json
+// @Param filter query models.GetAllPostsParams false "Filter"
+// @Success 201 {object} models.GetAllPostsResponse
+// @Failure 500 {object} models.ResponseError
+func (h *handlerV1) GetAllPosts(c *gin.Context) {
+	params, err := validateGetAllPostsParams(c)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, errRespone(err))
+		return
+	}
+
+	result, err := h.Storage.Post().GetAll(&repo.GetPostsParams{
+		Limit: params.Limit,
+		Page: params.Page,
+		Search: params.Search,
+		UserID: params.UserID,
+		CategoryID: params.CategoryID,
+		SortByDate: params.SortByDate,
+	})
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, errRespone(err))
+		return
+	}
+
+	c.JSON(http.StatusOK, getPostsResponse(result))
+}
+
+func getPostsResponse(data *repo.GetAllPostResult) *models.GetAllPostsResponse {
+	response := models.GetAllPostsResponse{
+		Posts: make([]*models.Post, 0),
+		Count: data.Count,
+	}
+
+	for _, post := range data.Posts {
+		u := parsePostModel(post)
+		response.Posts = append(response.Posts, &u)
+	}
+
+	return &response
+}
+
+
+func parsePostModel(post *repo.Post) models.Post {
+	return models.Post{
+		ID:              post.ID,
+		Title: post.Title,
+		Description:  post.Title,
+		ImageUrl: post.ImageUrl,
+		ViewsCount: post.ViewsCount,
+		UserID: post.UserID,
+		CategoryID: post.CategoryID,
+		CreatedAt:       post.CreatedAt,
+		UpdatedAt: post.UpdatedAt,
+	}
+}
