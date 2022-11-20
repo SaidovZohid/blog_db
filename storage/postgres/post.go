@@ -185,7 +185,7 @@ func (pr *postRepo) GetAll(params *repo.GetPostsParams) (*repo.GetAllPostResult,
 	}
 
 	orderBy := " ORDER BY created_at DESC"
-	if params.SortByDate !="" {
+	if params.SortByDate != "" {
 		orderBy = fmt.Sprintf(" ORDER BY created_at %s", params.SortByDate)
 	}
 

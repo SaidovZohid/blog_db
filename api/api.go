@@ -48,6 +48,8 @@ func New(opt *RoutetOptions) *gin.Engine {
 		apiV1.GET("/posts", handlerV1.GetAllPosts)
 
 		apiV1.POST("/auth/register", handlerV1.Register)
+
+		apiV1.POST("/file_upload", handlerV1.UploadFile)
 		
 		router.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
 	}

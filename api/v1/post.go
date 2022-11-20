@@ -204,7 +204,7 @@ func (h *handlerV1) DeletePost(ctx *gin.Context) {
 func (h *handlerV1) GetAllPosts(c *gin.Context) {
 	params, err := validateGetAllPostsParams(c)
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, errRespone(err))
+		c.JSON(http.StatusInternalServerError, errResponse(err))
 		return
 	}
 
@@ -217,7 +217,7 @@ func (h *handlerV1) GetAllPosts(c *gin.Context) {
 		SortByDate: params.SortByDate,
 	})
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, errRespone(err))
+		c.JSON(http.StatusInternalServerError, errResponse(err))
 		return
 	}
 

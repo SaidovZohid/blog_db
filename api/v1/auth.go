@@ -27,14 +27,14 @@ func (h *handlerV1) Register(ctx *gin.Context) {
 
 	err := ctx.ShouldBindJSON(&req)
 	if err != nil {
-		ctx.JSON(http.StatusBadRequest, errRespone(err))
+		ctx.JSON(http.StatusBadRequest, errResponse(err))
 		return
 	}
 
 	hashedPassword, err := utils.HashPassword(req.Password)
 
 	if err != nil {
-		ctx.JSON(http.StatusBadRequest, errRespone(err))
+		ctx.JSON(http.StatusBadRequest, errResponse(err))
 		return
 	}
 
@@ -48,13 +48,13 @@ func (h *handlerV1) Register(ctx *gin.Context) {
 	})
 
 	if err != nil {
-		ctx.JSON(http.StatusBadRequest, errRespone(err))
+		ctx.JSON(http.StatusBadRequest, errResponse(err))
 		return
 	}
 
 	token, _, err := utils.CreateToken(result.UserName, result.Email, time.Hour*24)
 	if err != nil {
-		ctx.JSON(http.StatusBadRequest, errRespone(err))
+		ctx.JSON(http.StatusBadRequest, errResponse(err))
 		return
 	}
 	log.Print("Hello")

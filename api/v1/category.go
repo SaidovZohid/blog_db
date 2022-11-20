@@ -179,7 +179,7 @@ func (h *handlerV1) GetAllCategories(ctx *gin.Context) {
 	params, err := validateGetAllParams(ctx)
 
 	if err != nil {
-		ctx.JSON(http.StatusBadRequest,errRespone(err))
+		ctx.JSON(http.StatusBadRequest,errResponse(err))
 		return
 	}
 
@@ -190,7 +190,7 @@ func (h *handlerV1) GetAllCategories(ctx *gin.Context) {
 	})
 
 	if err != nil {
-		ctx.JSON(http.StatusInternalServerError, errRespone(err))
+		ctx.JSON(http.StatusInternalServerError, errResponse(err))
 		return
 	}
 

@@ -372,6 +372,31 @@ paths:
       summary: Update category by it's id
       tags:
       - category
+  /file_upload:
+    post:
+      consumes:
+      - application/json
+      description: File upload
+      parameters:
+      - description: File
+        in: formData
+        name: file
+        required: true
+        type: file
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.ResponseSuccess'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/models.ResponseError'
+      summary: File upload
+      tags:
+      - file-upload
   /posts:
     get:
       consumes:
