@@ -19,19 +19,22 @@ type User struct {
 	ProfileImageUrl *string
 	Type            string
 	CreatedAt       time.Time
+	IsActive        bool
 }
 
 type UserStorageI interface {
 	Create(u *User) (*User, error)
+	Activate(user_id int64) error
 	Get(user_id int64) (*User, error)
 	Update(u *User) (*User, error)
 	Delete(user_id int64) error
 	GetAll(params *GetAllUserParams) (*GetAllUsersResult, error)
+	GetByEmail(user_email string) (*User, error)
 }
 
 type GetAllUserParams struct {
-	Limit int32
-	Page int32
+	Limit  int32
+	Page   int32
 	Search string
 }
 

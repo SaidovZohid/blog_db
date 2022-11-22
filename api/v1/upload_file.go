@@ -16,6 +16,7 @@ type File struct {
 	File *multipart.FileHeader `form:"file" binding:"required"`
 }
 
+// @Security ApiKeyAuth
 // @Router /file_upload [post]
 // @Summary File upload
 // @Description File upload

@@ -9,6 +9,7 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
+// @Security ApiKeyAuth
 // @Router /categories [post]
 // @Summary Create a category
 // @Description Create a category
@@ -50,6 +51,7 @@ func (h *handlerV1) CreateCategory(ctx *gin.Context) {
 	})
 }
 
+// @Security ApiKeyAuth
 // @Router /categories/{id} [get]
 // @Summary Get category by it's id
 // @Description Get category by it's id
@@ -85,6 +87,7 @@ func (h *handlerV1) GetCategory(ctx *gin.Context) {
 	})
 }
 
+// @Security ApiKeyAuth
 // @Router /categories/update/{id} [put]
 // @Summary Update category by it's id
 // @Description Update category by it's id
@@ -135,6 +138,7 @@ func (h *handlerV1) UpdateCategory(ctx *gin.Context) {
 	})
 }
 
+// @Security ApiKeyAuth
 // @Router /categories/delete/{id} [delete]
 // @Summary Update category by it's id
 // @Description Update category by it's id

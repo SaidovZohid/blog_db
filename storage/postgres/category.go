@@ -27,7 +27,7 @@ func (cr *categoryRepo) Create(category *repo.Category) (*repo.Category, error) 
 		category.Title,
 	).Scan(
 		&category.ID,
-		category.CreatedAt,
+		&category.CreatedAt,
 	)
 	
 	if err != nil {

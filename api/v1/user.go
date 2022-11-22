@@ -9,6 +9,7 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
+// @Security ApiKeyAuth
 // @Router /users [post]
 // @Summary Create a user
 // @Description Create a user
@@ -30,7 +31,6 @@ func (h *handlerV1) CreateUser(c *gin.Context) {
 		})
 		return
 	}
-
 	resp, err := h.Storage.User().Create(&repo.User{
 		FirstName: req.FirstName,
 		LastName: req.LastName,
@@ -64,6 +64,7 @@ func (h *handlerV1) CreateUser(c *gin.Context) {
 	})
 }
 
+// @Security ApiKeyAuth
 // @Router /users/{id} [get]
 // @Summary Get user by id
 // @Description Get user by id
@@ -105,6 +106,7 @@ func (h *handlerV1) GetUser(c *gin.Context) {
 	})
 }
 
+// @Security ApiKeyAuth
 // @Router /users/update/{id} [put]
 // @Summary Update user by id
 // @Description Update user by id
@@ -167,6 +169,7 @@ func (h *handlerV1) UpdateUser(c *gin.Context) {
 	})
 }
 
+// @Security ApiKeyAuth
 // @Router /users/delete/{id} [delete]
 // @Summary Delete user by id
 // @Description Delete user by id

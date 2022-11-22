@@ -29,8 +29,9 @@ func (ur *userRepo) Create(user *repo.User) (*repo.User, error) {
 			password,
 			username,
 			profile_image_url,
-			type
-		) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)
+			type,
+			is_active
+		) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)
 		RETURNING id, created_at
 	`
 	err := ur.db.QueryRow(
@@ -44,6 +45,7 @@ func (ur *userRepo) Create(user *repo.User) (*repo.User, error) {
 		user.UserName,
 		user.ProfileImageUrl,
 		user.Type,
+		user.IsActive,
 	).Scan(
 		&user.ID,
 		&user.CreatedAt,
@@ -54,6 +56,16 @@ func (ur *userRepo) Create(user *repo.User) (*repo.User, error) {
 	}
 
 	return user, nil
+}
+
+func (ur *userRepo) Activate(user_id int64) error {
+	query := "UPDATE users SET is_active=true WHERE id=$1"
+	_, err := ur.db.Exec(query, user_id)
+	if err != nil {
+		return err
+	}
+
+	return nil 
 }
 
 func (ur *userRepo) Get(user_id int64) (*repo.User, error) {
@@ -192,12 +204,12 @@ func (ur *userRepo) GetAll(params *repo.GetAllUserParams) (*repo.GetAllUsersResu
 
 	limit := fmt.Sprintf(" LIMIT %d OFFSET %d", params.Limit, offset)
 
-	filter := ""
+	filter := " WHERE is_active=true "
 
 	if params.Search != "" {
 		str := "%" + params.Search + "%"
 		filter = fmt.Sprintf(`
-			WHERE first_name ILIKE '%s' OR last_name ILIKE '%s' OR phone_number ILIKE '%s' OR email ILIKE '%s' OR username ILIKE '%s'
+			AND first_name ILIKE '%s' OR last_name ILIKE '%s' OR phone_number ILIKE '%s' OR email ILIKE '%s' OR username ILIKE '%s'
 		`, str, str, str, str, str)
 	}
 
@@ -251,6 +263,47 @@ func (ur *userRepo) GetAll(params *repo.GetAllUserParams) (*repo.GetAllUsersResu
 
 	err = ur.db.QueryRow(queryCount).Scan(&result.Count)
 	
+	if err != nil {
+		return nil, err
+	}
+
+	return &result, nil
+}
+
+func (ur *userRepo) GetByEmail(user_email string) (*repo.User, error) {
+	var result repo.User
+	
+	query := `
+		SELECT 
+			id,
+			first_name,
+			last_name,
+			phone_number,
+			email,
+			gender,
+			password,
+			username,
+			profile_image_url,
+			type,
+			created_at
+		FROM users WHERE email = $1
+	`
+	err := ur.db.QueryRow(
+		query,
+		user_email,
+	).Scan(
+		&result.ID,
+		&result.FirstName,
+		&result.LastName,
+		&result.PhoneNumber,
+		&result.Email,
+		&result.Gender,
+		&result.Password,
+		&result.UserName,
+		&result.ProfileImageUrl,
+		&result.Type,
+		&result.CreatedAt,
+	)
 	if err != nil {
 		return nil, err
 	}

@@ -1,5 +1,24 @@
 basePath: /v1
 definitions:
+  models.AuthResponse:
+    properties:
+      access_token:
+        type: string
+      created_at:
+        type: string
+      email:
+        type: string
+      first_name:
+        type: string
+      id:
+        type: integer
+      last_name:
+        type: string
+      type:
+        type: string
+      username:
+        type: string
+    type: object
   models.Category:
     properties:
       created_at:
@@ -12,6 +31,7 @@ definitions:
   models.CreateCategoryRequest:
     properties:
       title:
+        maxLength: 100
         type: string
     required:
     - title
@@ -85,6 +105,18 @@ definitions:
       count:
         type: integer
     type: object
+  models.LoginRequest:
+    properties:
+      email:
+        type: string
+      password:
+        maxLength: 16
+        minLength: 6
+        type: string
+    required:
+    - email
+    - password
+    type: object
   models.Post:
     properties:
       category_id:
@@ -132,25 +164,6 @@ definitions:
     - last_name
     - password
     - username
-    type: object
-  models.RegisterResponse:
-    properties:
-      access_token:
-        type: string
-      created_at:
-        type: string
-      email:
-        type: string
-      first_name:
-        type: string
-      id:
-        type: integer
-      last_name:
-        type: string
-      type:
-        type: string
-      username:
-        type: string
     type: object
   models.ResponseError:
     properties:
@@ -200,13 +213,50 @@ definitions:
       username:
         type: string
     type: object
+  models.VerifyRequest:
+    properties:
+      email:
+        type: string
+      password:
+        maxLength: 16
+        minLength: 6
+        type: string
+    required:
+    - email
+    - password
+    type: object
 host: localhost:8080
 info:
   contact: {}
   description: This is a blog service api.
-  title: Swagger for blog api
   version: "2.0"
 paths:
+  /auth/login:
+    post:
+      consumes:
+      - application/json
+      description: Login User
+      parameters:
+      - description: Login
+        in: body
+        name: login
+        required: true
+        schema:
+          $ref: '#/definitions/models.LoginRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.AuthResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/models.ResponseError'
+      summary: Login User
+      tags:
+      - register
   /auth/register:
     post:
       consumes:
@@ -225,7 +275,33 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/models.RegisterResponse'
+            $ref: '#/definitions/models.AuthResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/models.ResponseError'
+      summary: Create user with token key and get token key.
+      tags:
+      - register
+  /auth/verify:
+    post:
+      consumes:
+      - application/json
+      description: Create user with token key and get token key.
+      parameters:
+      - description: Data
+        in: body
+        name: data
+        required: true
+        schema:
+          $ref: '#/definitions/models.VerifyRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.AuthResponse'
         "500":
           description: Internal Server Error
           schema:
@@ -288,6 +364,8 @@ paths:
           description: Internal Server Error
           schema:
             $ref: '#/definitions/models.ResponseError'
+      security:
+      - ApiKeyAuth: []
       summary: Create a category
       tags:
       - category
@@ -313,6 +391,8 @@ paths:
           description: Internal Server Error
           schema:
             $ref: '#/definitions/models.ResponseError'
+      security:
+      - ApiKeyAuth: []
       summary: Get category by it's id
       tags:
       - category
@@ -338,6 +418,8 @@ paths:
           description: Internal Server Error
           schema:
             $ref: '#/definitions/models.ResponseError'
+      security:
+      - ApiKeyAuth: []
       summary: Update category by it's id
       tags:
       - category
@@ -369,6 +451,8 @@ paths:
           description: Internal Server Error
           schema:
             $ref: '#/definitions/models.ResponseError'
+      security:
+      - ApiKeyAuth: []
       summary: Update category by it's id
       tags:
       - category
@@ -394,6 +478,8 @@ paths:
           description: Internal Server Error
           schema:
             $ref: '#/definitions/models.ResponseError'
+      security:
+      - ApiKeyAuth: []
       summary: File upload
       tags:
       - file-upload
@@ -465,6 +551,8 @@ paths:
           description: Internal Server Error
           schema:
             $ref: '#/definitions/models.ResponseError'
+      security:
+      - ApiKeyAuth: []
       summary: Create a post
       tags:
       - post
@@ -490,6 +578,8 @@ paths:
           description: Internal Server Error
           schema:
             $ref: '#/definitions/models.ResponseError'
+      security:
+      - ApiKeyAuth: []
       summary: Get a post with it's id
       tags:
       - post
@@ -515,6 +605,8 @@ paths:
           description: Internal Server Error
           schema:
             $ref: '#/definitions/models.ResponseError'
+      security:
+      - ApiKeyAuth: []
       summary: Delete a post
       tags:
       - post
@@ -546,6 +638,8 @@ paths:
           description: Internal Server Error
           schema:
             $ref: '#/definitions/models.ResponseError'
+      security:
+      - ApiKeyAuth: []
       summary: Update post with it's id as param
       tags:
       - post
@@ -604,6 +698,8 @@ paths:
           description: Internal Server Error
           schema:
             $ref: '#/definitions/models.ResponseError'
+      security:
+      - ApiKeyAuth: []
       summary: Create a user
       tags:
       - user
@@ -629,6 +725,8 @@ paths:
           description: Internal Server Error
           schema:
             $ref: '#/definitions/models.ResponseError'
+      security:
+      - ApiKeyAuth: []
       summary: Get user by id
       tags:
       - user
@@ -654,6 +752,8 @@ paths:
           description: Internal Server Error
           schema:
             $ref: '#/definitions/models.ResponseError'
+      security:
+      - ApiKeyAuth: []
       summary: Delete user by id
       tags:
       - user
@@ -685,7 +785,14 @@ paths:
           description: Internal Server Error
           schema:
             $ref: '#/definitions/models.ResponseError'
+      security:
+      - ApiKeyAuth: []
       summary: Update user by id
       tags:
       - user
+securityDefinitions:
+  ApiKeyAuth:
+    in: header
+    name: Authorization
+    type: apiKey
 swagger: "2.0"

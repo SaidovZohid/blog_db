@@ -6,8 +6,10 @@ import (
 )
 
 type Config struct {
-	HttpPort string
-	Postgres PostgresConfig
+	HttpPort      string
+	Postgres      PostgresConfig
+	Authorization Authorization
+	Smtp          Smtp
 }
 
 type PostgresConfig struct {
@@ -16,6 +18,15 @@ type PostgresConfig struct {
 	User     string
 	Password string
 	Database string
+}
+
+type Smtp struct {
+	Sender   string
+	Password string
+}
+
+type Authorization struct {
+	SecretKey               string
 }
 
 func Load(path string) Config {
@@ -32,6 +43,13 @@ func Load(path string) Config {
 			User:     conf.GetString("POSTGRES_USER"),
 			Password: conf.GetString("POSTGRES_PASSWORD"),
 			Database: conf.GetString("POSTGRES_DATABASE"),
+		},
+		Authorization: Authorization{
+			SecretKey:               conf.GetString("SECRET_KEY"),
+		},
+		Smtp: Smtp{
+			Sender:   conf.GetString("SMTP_SENDER"),
+			Password: conf.GetString("SMTP_PASSWORD"),
 		},
 	}
 	return cfg

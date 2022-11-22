@@ -14,11 +14,15 @@ type RoutetOptions struct {
 	Storage storage.StorageI
 }
 
-// @title           Swagger for blog api
+// New @title           Swagger for blog api
 // @version         2.0
 // @description     This is a blog service api.
-// @host      localhost:8080
-// @BasePath  /v1
+// @host      		localhost:8080
+// @BasePath  		/v1
+// @securityDefinitions.apikey ApiKeyAuth
+// @in header
+// @name Authorization
+// @Security ApiKeyAuth
 func New(opt *RoutetOptions) *gin.Engine {
 	router := gin.Default()
 
@@ -28,29 +32,32 @@ func New(opt *RoutetOptions) *gin.Engine {
 	})
 
 	apiV1 := router.Group("/v1")
+	router.Static("/medias", "./media")
 	{
 		apiV1.POST("/users", handlerV1.CreateUser)
 		apiV1.GET("/users/:id", handlerV1.GetUser)
 		apiV1.PUT("/users/update/:id", handlerV1.UpdateUser)
 		apiV1.DELETE("/users/delete/:id", handlerV1.DeleteUser)
 		apiV1.GET("/users", handlerV1.GetAllUsers)
-		
+
 		apiV1.POST("/categories", handlerV1.CreateCategory)
 		apiV1.GET("/categories/:id", handlerV1.GetCategory)
 		apiV1.PUT("/categories/update/:id", handlerV1.UpdateCategory)
 		apiV1.DELETE("/categories/delete/:id", handlerV1.DeleteCategory)
 		apiV1.GET("/categories", handlerV1.GetAllCategories)
-		
-		apiV1.POST("/posts", handlerV1.CreatePost)
+
+		apiV1.POST("/posts", handlerV1.AuthMiddleWare, handlerV1.CreatePost)
 		apiV1.GET("/posts/:id", handlerV1.GetPost)
-		apiV1.PUT("/posts/update/:id", handlerV1.UpdatePost)
-		apiV1.DELETE("/posts/delete/:id", handlerV1.DeletePost)
+		apiV1.PUT("/posts/update/:id", handlerV1.AuthMiddleWare, handlerV1.UpdatePost)
+		apiV1.DELETE("/posts/delete/:id", handlerV1.AuthMiddleWare, handlerV1.DeletePost)
 		apiV1.GET("/posts", handlerV1.GetAllPosts)
 
 		apiV1.POST("/auth/register", handlerV1.Register)
+		apiV1.POST("/auth/login", handlerV1.Login)
+		apiV1.POST("/auth/verify", handlerV1.Verify)
 
-		apiV1.POST("/file_upload", handlerV1.UploadFile)
-		
+		apiV1.POST("/file_upload", handlerV1.AuthMiddleWare, handlerV1.UploadFile)
+
 		router.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
 	}
 

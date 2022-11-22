@@ -9,6 +9,7 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
+// @Security ApiKeyAuth
 // @Router /posts [post]
 // @Summary Create a post
 // @Description Create a post
@@ -58,6 +59,7 @@ func (h *handlerV1) CreatePost(ctx *gin.Context) {
 	})
 }
 
+// @Security ApiKeyAuth
 // @Router /posts/{id} [get]
 // @Summary Get a post with it's id
 // @Description Create a post with it's id
@@ -98,6 +100,7 @@ func (h *handlerV1) GetPost(ctx *gin.Context) {
 	})
 }
 
+// @Security ApiKeyAuth
 // @Router /posts/update/{id} [put]
 // @Summary Update post with it's id as param
 // @Description Update post with it's id as param
@@ -160,6 +163,7 @@ func (h *handlerV1) UpdatePost(ctx *gin.Context) {
 	})
 }
 
+// @Security ApiKeyAuth
 // @Router /posts/delete/{id} [delete]
 // @Summary Delete a post
 // @Description Create a post
