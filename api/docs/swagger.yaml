@@ -215,15 +215,13 @@ definitions:
     type: object
   models.VerifyRequest:
     properties:
+      code:
+        type: integer
       email:
         type: string
-      password:
-        maxLength: 16
-        minLength: 6
-        type: string
     required:
+    - code
     - email
-    - password
     type: object
 host: localhost:8080
 info:

@@ -285,7 +285,8 @@ func (ur *userRepo) GetByEmail(user_email string) (*repo.User, error) {
 			username,
 			profile_image_url,
 			type,
-			created_at
+			created_at,
+			is_active
 		FROM users WHERE email = $1
 	`
 	err := ur.db.QueryRow(
@@ -303,6 +304,7 @@ func (ur *userRepo) GetByEmail(user_email string) (*repo.User, error) {
 		&result.ProfileImageUrl,
 		&result.Type,
 		&result.CreatedAt,
+		&result.IsActive,
 	)
 	if err != nil {
 		return nil, err

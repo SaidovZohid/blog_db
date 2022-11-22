@@ -1213,17 +1213,15 @@ const docTemplate = `{
         "models.VerifyRequest": {
             "type": "object",
             "required": [
-                "email",
-                "password"
+                "code",
+                "email"
             ],
             "properties": {
+                "code": {
+                    "type": "integer"
+                },
                 "email": {
                     "type": "string"
-                },
-                "password": {
-                    "type": "string",
-                    "maxLength": 16,
-                    "minLength": 6
                 }
             }
         }

@@ -63,14 +63,24 @@ func (h *handlerV1) Register(ctx *gin.Context) {
 	}
 	
 	rand.Seed(time.Now().UnixNano())
-	randNum := rand.Intn((10000 - 9999 + 1) + 9999)
-
+	randCode := rand.Intn(100000)
+	err = h.Storage.EmailVer().CreateEmailVer(&repo.EmailVer{
+		UserName: req.UserName,
+		Email: req.Email,
+		Code: randCode,
+	})
+	if err != nil {
+		ctx.JSON(http.StatusInternalServerError, models.ResponseError{
+			Error: err.Error(),
+		})
+		return
+	}
 	go func() {
 		err = email.SendEmail(h.cfg, &email.SendEmailRequest{
 			To:      []string{result.Email},
 			Subject: "Verification Email",
 			Body: map[string]int{
-				"code": randNum,
+				"code": randCode,
 			},
 			Type: email.VerificationEmail,
 		})
@@ -108,13 +118,33 @@ func (h *handlerV1) Verify(ctx *gin.Context) {
 	if err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
 			ctx.JSON(http.StatusNotFound, errResponse(err))
+			return 
 		}
 		ctx.JSON(http.StatusInternalServerError, errResponse(err))
 		return
 	}
-
 	// TODO: check verification code
+	emailVer, err := h.Storage.EmailVer().GetEmailVer(req.Email)
+	if err != nil {
+		ctx.JSON(http.StatusInternalServerError, models.ResponseError{
+			Error: err.Error(),
+		})
+		return
+	}
 
+	if emailVer.Code != req.Code {
+		ctx.JSON(http.StatusNotAcceptable, models.ResponseError{
+			Error: "Verification code is not valid",
+		})
+		return
+	}
+	err = h.Storage.EmailVer().DeleteEmailVer(req.Email)
+	if err != nil {
+		ctx.JSON(http.StatusInternalServerError, models.ResponseError{
+			Error: err.Error(),
+		})
+		return
+	}
 	err = h.Storage.User().Activate(user.ID)
 	if err != nil {
 		ctx.JSON(http.StatusBadRequest, errResponse(err))
@@ -172,6 +202,10 @@ func (h *handlerV1) Login(ctx *gin.Context) {
 			return
 		}
 		ctx.JSON(http.StatusInternalServerError, errResponse(err))
+		return
+	}
+	if user.IsActive == false {
+		ctx.JSON(http.StatusUnauthorized, errResponse(ErrUserNotVerifid))
 		return
 	}
 
