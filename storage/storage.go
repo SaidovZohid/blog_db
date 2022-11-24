@@ -10,14 +10,12 @@ type StorageI interface {
 	User() repo.UserStorageI
 	Category() repo.CategoryStorageI
 	Post() repo.PostStorageI
-	EmailVer() repo.EmailVerI
 }
 
 type storagePg struct {
 	userRepo repo.UserStorageI
 	categoryRepo repo.CategoryStorageI
 	postRepo repo.PostStorageI
-	emailVerRepo repo.EmailVerI
 }
 
 func NewStoragePg(db *sqlx.DB) StorageI {
@@ -25,7 +23,6 @@ func NewStoragePg(db *sqlx.DB) StorageI {
 		userRepo: postgres.NewUser(db),
 		categoryRepo: postgres.NewCategory(db),
 		postRepo: postgres.NewPost(db),
-		emailVerRepo: postgres.NewEmailVer(db),
 	}
 }
 
@@ -39,8 +36,4 @@ func (s *storagePg) Category() repo.CategoryStorageI {
 
 func (s *storagePg) Post() repo.PostStorageI {
 	return s.postRepo
-}
-
-func (s *storagePg) EmailVer() repo.EmailVerI {
-	return s.emailVerRepo
 }

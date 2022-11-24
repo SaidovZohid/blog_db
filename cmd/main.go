@@ -5,11 +5,12 @@ import (
 	"log"
 
 	"github.com/SaidovZohid/blog_db/api"
+	_ "github.com/SaidovZohid/blog_db/api/docs"
 	"github.com/SaidovZohid/blog_db/config"
 	"github.com/SaidovZohid/blog_db/storage"
+	"github.com/go-redis/redis/v9"
 	"github.com/jmoiron/sqlx"
 	_ "github.com/lib/pq"
-	_ "github.com/SaidovZohid/blog_db/api/docs"
 )
 
 func main() {
@@ -31,11 +32,17 @@ func main() {
 	fmt.Println("Configuration: ", cfg)
 	fmt.Println("Connected Succesfully!")
 
+	rdb := redis.NewClient(&redis.Options{
+		Addr: cfg.Redis.Addr,
+	})
+
 	strg := storage.NewStoragePg(psqlConn)
+	inMemory := storage.NewInMemoryStorage(rdb)
 
 	apiServer := api.New(&api.RoutetOptions{
-		Cfg:     &cfg,
-		Storage: strg,
+		Cfg:      &cfg,
+		Storage:  strg,
+		InMemory: inMemory,
 	})
 
 	err = apiServer.Run(cfg.HttpPort)

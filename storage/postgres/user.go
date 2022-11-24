@@ -29,9 +29,8 @@ func (ur *userRepo) Create(user *repo.User) (*repo.User, error) {
 			password,
 			username,
 			profile_image_url,
-			type,
-			is_active
-		) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)
+			type
+		) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)
 		RETURNING id, created_at
 	`
 	err := ur.db.QueryRow(
@@ -45,7 +44,6 @@ func (ur *userRepo) Create(user *repo.User) (*repo.User, error) {
 		user.UserName,
 		user.ProfileImageUrl,
 		user.Type,
-		user.IsActive,
 	).Scan(
 		&user.ID,
 		&user.CreatedAt,
@@ -56,16 +54,6 @@ func (ur *userRepo) Create(user *repo.User) (*repo.User, error) {
 	}
 
 	return user, nil
-}
-
-func (ur *userRepo) Activate(user_id int64) error {
-	query := "UPDATE users SET is_active=true WHERE id=$1"
-	_, err := ur.db.Exec(query, user_id)
-	if err != nil {
-		return err
-	}
-
-	return nil 
 }
 
 func (ur *userRepo) Get(user_id int64) (*repo.User, error) {
@@ -204,12 +192,12 @@ func (ur *userRepo) GetAll(params *repo.GetAllUserParams) (*repo.GetAllUsersResu
 
 	limit := fmt.Sprintf(" LIMIT %d OFFSET %d", params.Limit, offset)
 
-	filter := " WHERE is_active=true "
+	filter := ""
 
 	if params.Search != "" {
 		str := "%" + params.Search + "%"
 		filter = fmt.Sprintf(`
-			AND first_name ILIKE '%s' OR last_name ILIKE '%s' OR phone_number ILIKE '%s' OR email ILIKE '%s' OR username ILIKE '%s'
+			WHERE first_name ILIKE '%s' OR last_name ILIKE '%s' OR phone_number ILIKE '%s' OR email ILIKE '%s' OR username ILIKE '%s'
 		`, str, str, str, str, str)
 	}
 
@@ -285,8 +273,7 @@ func (ur *userRepo) GetByEmail(user_email string) (*repo.User, error) {
 			username,
 			profile_image_url,
 			type,
-			created_at,
-			is_active
+			created_at
 		FROM users WHERE email = $1
 	`
 	err := ur.db.QueryRow(
@@ -304,7 +291,6 @@ func (ur *userRepo) GetByEmail(user_email string) (*repo.User, error) {
 		&result.ProfileImageUrl,
 		&result.Type,
 		&result.CreatedAt,
-		&result.IsActive,
 	)
 	if err != nil {
 		return nil, err

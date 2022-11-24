@@ -1,15 +1,15 @@
 package v1
 
 import (
-	"math/rand"
 	"database/sql"
+	"encoding/json"
 	"errors"
 	"fmt"
 	"net/http"
 	"time"
 
 	"github.com/SaidovZohid/blog_db/api/models"
-	"github.com/SaidovZohid/blog_db/pkg/email"
+	emailPkg "github.com/SaidovZohid/blog_db/pkg/email"
 	"github.com/SaidovZohid/blog_db/pkg/utils"
 	"github.com/SaidovZohid/blog_db/storage/repo"
 	"github.com/gin-gonic/gin"
@@ -18,6 +18,9 @@ import (
 var (
 	ErrWrongEmailOrPassword = errors.New("wrong email or password")
 	ErrUserNotVerifid       = errors.New("user not verified")
+	ErrEmailExists          = errors.New("email is already exists")
+	ErrIncorrectCode        = errors.New("incorrect verification code")
+	ErrCodeExpired          = errors.New("verification is expired")
 )
 
 // @Router /auth/register [post]
@@ -40,59 +43,74 @@ func (h *handlerV1) Register(ctx *gin.Context) {
 		return
 	}
 
-	hashedPassword, err := utils.HashPassword(req.Password)
+	_, err = h.Storage.User().GetByEmail(req.Email)
+	if !errors.Is(err, sql.ErrNoRows) {
+		ctx.JSON(http.StatusBadRequest, errResponse(ErrEmailExists))
+	}
 
+	hashedPassword, err := utils.HashPassword(req.Password)
 	if err != nil {
 		ctx.JSON(http.StatusBadRequest, errResponse(err))
 		return
 	}
 
-	result, err := h.Storage.User().Create(&repo.User{
+	user := repo.User{
 		FirstName: req.FirstName,
 		LastName:  req.LastName,
 		Email:     req.Email,
-		UserName:  req.UserName,
 		Type:      repo.UserTypeUser,
 		Password:  hashedPassword,
-		IsActive:  false,
-	})
+	}
 
+	userData, err := json.Marshal(user)
 	if err != nil {
-		ctx.JSON(http.StatusBadRequest, errResponse(err))
+		ctx.JSON(http.StatusInternalServerError, errResponse(err))
 		return
+	}
+
+	err = h.inMemory.Set("user_" + req.Email, string(userData), 10 * time.Minute)
+	if err != nil {
+		ctx.JSON(http.StatusInternalServerError, errResponse(err))
 	}
 	
-	rand.Seed(time.Now().UnixNano())
-	randCode := rand.Intn(100000)
-	err = h.Storage.EmailVer().CreateEmailVer(&repo.EmailVer{
-		UserName: req.UserName,
-		Email: req.Email,
-		Code: randCode,
-	})
-	if err != nil {
-		ctx.JSON(http.StatusInternalServerError, models.ResponseError{
-			Error: err.Error(),
-		})
-		return
-	}
-	go func() {
-		err = email.SendEmail(h.cfg, &email.SendEmailRequest{
-			To:      []string{result.Email},
-			Subject: "Verification Email",
-			Body: map[string]int{
-				"code": randCode,
-			},
-			Type: email.VerificationEmail,
-		})
+	go func(){
+		err = h.sendVereficationCode(req.Email)
 		if err != nil {
-			fmt.Println("Failed to sent code to email")
+			fmt.Println("failed to send code")
+			fmt.Printf("failed to send verification code: %v", err)
 		}
 	}()
 
-	ctx.JSON(http.StatusOK, models.ResponseSuccess{
+	ctx.JSON(http.StatusCreated, models.ResponseSuccess{
 		Success: "Verification code has been sent!",
 	})
 }
+
+func (h *handlerV1) sendVereficationCode(email string) error {
+	code, err := utils.GenerateRandomCode(6)
+	if err != nil {
+		return err
+	}
+
+	err = h.inMemory.Set("code_" + email, code, time.Minute) 
+	if err != nil {
+		return err
+	}
+
+	err = emailPkg.SendEmail(h.cfg, &emailPkg.SendEmailRequest{
+		To:      []string{email},
+		Subject: "Verification Email",
+		Body: map[string]string{
+			"code": code,
+		},
+		Type: emailPkg.VerificationEmail,
+	})
+	if err != nil {
+		fmt.Println("Failed to sent code to email")
+	}
+	
+	return nil
+} 
 
 // @Router /auth/verify [post]
 // @Summary Create user with token key and get token key.
@@ -114,46 +132,37 @@ func (h *handlerV1) Verify(ctx *gin.Context) {
 		return
 	}
 
-	user, err := h.Storage.User().GetByEmail(req.Email)
+	userData, err := h.inMemory.Get("user_" + req.Email)
 	if err != nil {
-		if errors.Is(err, sql.ErrNoRows) {
-			ctx.JSON(http.StatusNotFound, errResponse(err))
-			return 
-		}
-		ctx.JSON(http.StatusInternalServerError, errResponse(err))
+		ctx.JSON(http.StatusNotFound, errResponse(err))
 		return
 	}
 	// TODO: check verification code
-	emailVer, err := h.Storage.EmailVer().GetEmailVer(req.Email)
+	var user repo.User
+	err = json.Unmarshal([]byte(userData), &user)
 	if err != nil {
-		ctx.JSON(http.StatusInternalServerError, models.ResponseError{
-			Error: err.Error(),
-		})
+		ctx.JSON(http.StatusNotFound, errResponse(err))
 		return
 	}
 
-	if emailVer.Code != req.Code {
-		ctx.JSON(http.StatusNotAcceptable, models.ResponseError{
-			Error: "Verification code is not valid",
-		})
+	code, err := h.inMemory.Get("code_" + user.Email)
+	if err != nil {
+		ctx.JSON(http.StatusForbidden, errResponse(ErrCodeExpired))
 		return
 	}
-	err = h.Storage.EmailVer().DeleteEmailVer(req.Email)
-	if err != nil {
-		ctx.JSON(http.StatusInternalServerError, models.ResponseError{
-			Error: err.Error(),
-		})
+	if code != req.Code {
+		ctx.JSON(http.StatusForbidden, errResponse(ErrIncorrectCode))
 		return
 	}
-	err = h.Storage.User().Activate(user.ID)
+
+	result, err := h.Storage.User().Create(&user)
 	if err != nil {
-		ctx.JSON(http.StatusBadRequest, errResponse(err))
+		ctx.JSON(http.StatusInternalServerError, errResponse(err))
 		return
 	}
 
 	token, _, err := utils.CreateToken(h.cfg, &utils.TokenParams{
 		UserID:   user.ID,
-		Username: user.UserName,
 		Email:    user.Email,
 		Duration: time.Hour * 24 * 360,
 	})
@@ -163,13 +172,12 @@ func (h *handlerV1) Verify(ctx *gin.Context) {
 	}
 
 	ctx.JSON(http.StatusOK, models.AuthResponse{
-		Id:          user.ID,
+		Id:          result.ID,
 		FirstName:   user.FirstName,
 		LastName:    user.LastName,
 		Email:       user.Email,
-		UserName:    user.UserName,
 		Type:        user.Type,
-		CreatedAt:   user.CreatedAt,
+		CreatedAt:   result.CreatedAt,
 		AccessToken: token,
 	})
 
@@ -204,10 +212,6 @@ func (h *handlerV1) Login(ctx *gin.Context) {
 		ctx.JSON(http.StatusInternalServerError, errResponse(err))
 		return
 	}
-	if user.IsActive == false {
-		ctx.JSON(http.StatusUnauthorized, errResponse(ErrUserNotVerifid))
-		return
-	}
 
 	err = utils.CheckPassword(req.Password, user.Password)
 	if err != nil {
@@ -217,7 +221,6 @@ func (h *handlerV1) Login(ctx *gin.Context) {
 
 	token, _, err := utils.CreateToken(h.cfg, &utils.TokenParams{
 		UserID:   user.ID,
-		Username: user.UserName,
 		Email:    user.Email,
 		Duration: time.Hour * 24 * 360,
 	})
@@ -231,7 +234,6 @@ func (h *handlerV1) Login(ctx *gin.Context) {
 		FirstName:   user.FirstName,
 		LastName:    user.LastName,
 		Email:       user.Email,
-		UserName:    user.UserName,
 		Type:        user.Type,
 		CreatedAt:   user.CreatedAt,
 		AccessToken: token,

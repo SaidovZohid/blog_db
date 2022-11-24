@@ -968,8 +968,7 @@
                 "first_name",
                 "gender",
                 "last_name",
-                "type",
-                "username"
+                "type"
             ],
             "properties": {
                 "email": {
@@ -1099,8 +1098,7 @@
                 "email",
                 "first_name",
                 "last_name",
-                "password",
-                "username"
+                "password"
             ],
             "properties": {
                 "email": {
@@ -1120,11 +1118,6 @@
                     "type": "string",
                     "maxLength": 16,
                     "minLength": 6
-                },
-                "username": {
-                    "type": "string",
-                    "maxLength": 30,
-                    "minLength": 2
                 }
             }
         },
@@ -1210,7 +1203,7 @@
             ],
             "properties": {
                 "code": {
-                    "type": "integer"
+                    "type": "string"
                 },
                 "email": {
                     "type": "string"

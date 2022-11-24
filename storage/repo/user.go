@@ -15,16 +15,14 @@ type User struct {
 	Email           string
 	Gender          *string
 	Password        string
-	UserName        string
+	UserName        *string
 	ProfileImageUrl *string
 	Type            string
 	CreatedAt       time.Time
-	IsActive        bool
 }
 
 type UserStorageI interface {
 	Create(u *User) (*User, error)
-	Activate(user_id int64) error
 	Get(user_id int64) (*User, error)
 	Update(u *User) (*User, error)
 	Delete(user_id int64) error

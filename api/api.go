@@ -12,6 +12,7 @@ import (
 type RoutetOptions struct {
 	Cfg     *config.Config
 	Storage storage.StorageI
+	InMemory storage.InMemoryStorageI
 }
 
 // New @title           Swagger for blog api
@@ -29,6 +30,7 @@ func New(opt *RoutetOptions) *gin.Engine {
 	handlerV1 := v1.New(&v1.HandlerV1Options{
 		Cfg:     opt.Cfg,
 		Storage: &opt.Storage,
+		InMemory: &opt.InMemory,
 	})
 
 	apiV1 := router.Group("/v1")

@@ -12,7 +12,7 @@ import (
 type SendEmailRequest struct {
 	To      []string
 	Type    string
-	Body    map[string]int
+	Body    map[string]string
 	Subject string
 }
 

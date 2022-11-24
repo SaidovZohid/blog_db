@@ -10,7 +10,6 @@ import (
 
 type TokenParams struct {
 	UserID   int64
-	Username string
 	Email    string
 	Duration time.Duration
 }

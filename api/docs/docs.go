@@ -976,8 +976,7 @@ const docTemplate = `{
                 "first_name",
                 "gender",
                 "last_name",
-                "type",
-                "username"
+                "type"
             ],
             "properties": {
                 "email": {
@@ -1107,8 +1106,7 @@ const docTemplate = `{
                 "email",
                 "first_name",
                 "last_name",
-                "password",
-                "username"
+                "password"
             ],
             "properties": {
                 "email": {
@@ -1128,11 +1126,6 @@ const docTemplate = `{
                     "type": "string",
                     "maxLength": 16,
                     "minLength": 6
-                },
-                "username": {
-                    "type": "string",
-                    "maxLength": 30,
-                    "minLength": 2
                 }
             }
         },
@@ -1218,7 +1211,7 @@ const docTemplate = `{
             ],
             "properties": {
                 "code": {
-                    "type": "integer"
+                    "type": "string"
                 },
                 "email": {
                     "type": "string"

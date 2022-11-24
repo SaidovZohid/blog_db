@@ -76,7 +76,6 @@ definitions:
     - gender
     - last_name
     - type
-    - username
     type: object
   models.GetAllPostsResponse:
     properties:
@@ -154,16 +153,11 @@ definitions:
         maxLength: 16
         minLength: 6
         type: string
-      username:
-        maxLength: 30
-        minLength: 2
-        type: string
     required:
     - email
     - first_name
     - last_name
     - password
-    - username
     type: object
   models.ResponseError:
     properties:
@@ -216,7 +210,7 @@ definitions:
   models.VerifyRequest:
     properties:
       code:
-        type: integer
+        type: string
       email:
         type: string
     required:

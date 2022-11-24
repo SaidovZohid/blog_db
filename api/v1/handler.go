@@ -12,17 +12,20 @@ import (
 type handlerV1 struct {
 	cfg *config.Config
 	Storage storage.StorageI
+	inMemory storage.InMemoryStorageI
 }
 
 type HandlerV1Options struct {
 	Cfg *config.Config
 	Storage *storage.StorageI
+	InMemory *storage.InMemoryStorageI
 }
 
 func New(options *HandlerV1Options) *handlerV1 {
 	return &handlerV1{
 		cfg: options.Cfg,
 		Storage: *options.Storage,
+		inMemory: *options.InMemory,
 	}
 }
 

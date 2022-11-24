@@ -6,7 +6,6 @@ type RegisterRequest struct {
 	FirstName string `json:"first_name" binding:"required,min=2,max=50"`
 	LastName  string `json:"last_name" binding:"required,min=2,max=50"`
 	Email     string `json:"email" binding:"required,email"`
-	UserName  string `json:"username" binding:"required,min=2,max=30"`
 	Password  string `json:"password" binding:"required,min=6,max=16"`
 }
 
@@ -22,11 +21,11 @@ type AuthResponse struct {
 }
 
 type LoginRequest struct {
-	Email     string `json:"email" binding:"required,email"`
-	Password  string `json:"password" binding:"required,min=6,max=16"`
+	Email    string `json:"email" binding:"required,email"`
+	Password string `json:"password" binding:"required,min=6,max=16"`
 }
 
 type VerifyRequest struct {
-	Email     string `json:"email" binding:"required,email"`
-	Code  int `json:"code" binding:"required"`
+	Email string `json:"email" binding:"required,email"`
+	Code  string `json:"code" binding:"required"`
 }
