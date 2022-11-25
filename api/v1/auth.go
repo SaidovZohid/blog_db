@@ -23,6 +23,11 @@ var (
 	ErrCodeExpired          = errors.New("verification is expired")
 )
 
+const (
+	RegisterCodeKey = "register_code_"
+	ForgotPasswordKey = "forgot_password_key_"
+)
+
 // @Router /auth/register [post]
 // @Summary Create user with token key and get token key.
 // @Description Create user with token key and get token key.
@@ -74,7 +79,7 @@ func (h *handlerV1) Register(ctx *gin.Context) {
 	}
 	
 	go func(){
-		err = h.sendVereficationCode(req.Email)
+		err = h.sendVereficationCode(RegisterCodeKey,req.Email)
 		if err != nil {
 			fmt.Println("failed to send code")
 			fmt.Printf("failed to send verification code: %v", err)
@@ -86,13 +91,13 @@ func (h *handlerV1) Register(ctx *gin.Context) {
 	})
 }
 
-func (h *handlerV1) sendVereficationCode(email string) error {
+func (h *handlerV1) sendVereficationCode(key, email string) error {
 	code, err := utils.GenerateRandomCode(6)
 	if err != nil {
 		return err
 	}
 
-	err = h.inMemory.Set("code_" + email, code, time.Minute) 
+	err = h.inMemory.Set(key + email, code, time.Minute) 
 	if err != nil {
 		return err
 	}
@@ -145,7 +150,7 @@ func (h *handlerV1) Verify(ctx *gin.Context) {
 		return
 	}
 
-	code, err := h.inMemory.Get("code_" + user.Email)
+	code, err := h.inMemory.Get(RegisterCodeKey + user.Email)
 	if err != nil {
 		ctx.JSON(http.StatusForbidden, errResponse(ErrCodeExpired))
 		return
@@ -239,4 +244,149 @@ func (h *handlerV1) Login(ctx *gin.Context) {
 		AccessToken: token,
 	})
 
+}
+
+// @Router /auth/forgot-password [post]
+// @Summary Forgot  password
+// @Description Forgot  password
+// @Tags auth
+// @Accept json
+// @Produce json
+// @Param data body models.ForgotPasswordRequest true "Data"
+// @Success 200 {object} models.ResponseSuccess
+// @Failure 500 {object} models.ResponseError
+func (h *handlerV1) ForgotPassword(ctx *gin.Context) {
+	var (
+		req models.ForgotPasswordRequest
+	)
+
+	if err := ctx.ShouldBindJSON(&req); err != nil {
+		ctx.JSON(http.StatusBadRequest, errResponse(err))
+		return
+	}
+
+	_, err := h.Storage.User().GetByEmail(req.Email)
+	if err != nil {
+		if errors.Is(err, sql.ErrNoRows) {
+			ctx.JSON(http.StatusNotFound, errResponse(err))
+			return 
+		}
+
+		ctx.JSON(http.StatusInternalServerError, errResponse(err))
+		return
+	}
+
+	go func() {
+		err := h.sendVereficationCode(ForgotPasswordKey, req.Email)
+		if err != nil {
+			fmt.Printf("failed to send verification code: %v", err)
+		}
+	}()
+
+	ctx.JSON(http.StatusCreated, models.ResponseSuccess{
+		Success: "Validation code has been sent",
+	})
+}
+
+// @Router /auth/verify-forgot-password [post]
+// @Summary Verify forgot password
+// @Description Verify forgot password
+// @Tags auth
+// @Accept json
+// @Produce json
+// @Param data body models.VerifyRequest true "Data"
+// @Success 200 {object} models.AuthResponse
+// @Failure 500 {object} models.ResponseError
+func (h *handlerV1) VerifyForgotPassword(ctx *gin.Context) {
+	var (
+		req *models.VerifyRequest
+	)
+
+	if err := ctx.ShouldBindJSON(&req); err != nil {
+		ctx.JSON(http.StatusBadRequest, errResponse(err))
+		return
+	}
+
+	code, err := h.inMemory.Get(ForgotPasswordKey + req.Email)
+	if err != nil {
+		ctx.JSON(http.StatusForbidden, errResponse(ErrCodeExpired))
+		return
+	}
+
+	if req.Code != code {
+		ctx.JSON(http.StatusForbidden, errResponse(ErrIncorrectCode))
+		return
+	}
+
+	result, err := h.Storage.User().GetByEmail(req.Email)
+	if err != nil {
+		ctx.JSON(http.StatusInternalServerError, errResponse(err))
+		return
+	}
+
+	token, _, err := utils.CreateToken(h.cfg, &utils.TokenParams{
+		UserID: result.ID,
+		Email: result.Email,
+		Duration: time.Minute * 30,
+	})
+	if err != nil {
+		ctx.JSON(http.StatusInternalServerError, errResponse(err))
+		return
+	}
+
+	ctx.JSON(http.StatusCreated, models.AuthResponse{
+		Id: result.ID,
+		FirstName: result.FirstName,
+		LastName: result.LastName,
+		Email: result.Email,
+		Type: result.Type,
+		CreatedAt: result.CreatedAt,
+		AccessToken: token,
+	})
+}
+
+// @Security ApiKeyAuth
+// @Router /auth/update-password [post]
+// @Summary Update password
+// @Description Update password
+// @Tags auth
+// @Accept json
+// @Produce json
+// @Param data body models.UpdatePasswordRequest true "Data"
+// @Success 200 {object} models.ResponseSuccess
+// @Failure 500 {object} models.ResponseError
+func (h *handlerV1) UpdatePassword(ctx *gin.Context) {
+	var (
+		req models.UpdatePasswordRequest
+	)
+
+	if err := ctx.ShouldBindJSON(&req); err != nil {
+		ctx.JSON(http.StatusBadRequest, errResponse(err))
+		return
+	}
+
+	payload, err := h.GetAuthPayload(ctx)
+	if err != nil {
+		ctx.JSON(http.StatusInternalServerError, errResponse(err))
+		return
+	}
+
+	hashedPassword, err := utils.HashPassword(req.Password)
+	if err != nil {
+		ctx.JSON(http.StatusInternalServerError, errResponse(err))
+		return
+	}
+
+	err = h.Storage.User().UpdatePassword(&repo.UpdatePassword{
+		UserID: payload.UserID,
+		Password: hashedPassword,
+	})
+	if err != nil {
+		ctx.JSON(http.StatusInternalServerError, errResponse(err))
+		return
+	}
+
+	ctx.JSON(http.StatusCreated, models.ResponseSuccess{
+		Success: "Password has been updated!",
+	})
 }
