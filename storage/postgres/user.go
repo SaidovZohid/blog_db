@@ -165,6 +165,9 @@ func (ur *userRepo) Delete(user_id int64) error {
 		query,
 		user_id,
 	)
+	if err != nil {
+		return err
+	}
 
 	result, err := res.RowsAffected()
 	

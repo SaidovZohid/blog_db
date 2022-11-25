@@ -28,6 +28,34 @@ definitions:
       title:
         type: string
     type: object
+  models.Comment:
+    properties:
+      created_at:
+        type: string
+      description:
+        type: string
+      id:
+        type: integer
+      post_id:
+        type: integer
+      updated_at:
+        type: string
+      user:
+        $ref: '#/definitions/models.CommentUser'
+      user_id:
+        type: integer
+    type: object
+  models.CommentUser:
+    properties:
+      email:
+        type: string
+      first_name:
+        type: string
+      last_name:
+        type: string
+      profile_image_url:
+        type: string
+    type: object
   models.CreateCategoryRequest:
     properties:
       title:
@@ -35,6 +63,13 @@ definitions:
         type: string
     required:
     - title
+    type: object
+  models.CreateCommentRequest:
+    properties:
+      category_id:
+        type: integer
+      description:
+        type: string
     type: object
   models.CreatePostRequest:
     properties:
@@ -83,6 +118,15 @@ definitions:
         type: string
     required:
     - email
+    type: object
+  models.GetAllCommentsResponse:
+    properties:
+      comments:
+        items:
+          $ref: '#/definitions/models.Comment'
+        type: array
+      count:
+        type: integer
     type: object
   models.GetAllPostsResponse:
     properties:
@@ -174,6 +218,26 @@ definitions:
   models.ResponseSuccess:
     properties:
       success:
+        type: string
+    type: object
+  models.UpdateComment:
+    properties:
+      created_at:
+        type: string
+      description:
+        type: string
+      id:
+        type: integer
+      post_id:
+        type: integer
+      updated_at:
+        type: string
+      user_id:
+        type: integer
+    type: object
+  models.UpdateCommentRequest:
+    properties:
+      description:
         type: string
     type: object
   models.UpdatePasswordRequest:
@@ -542,6 +606,129 @@ paths:
       summary: Update category by it's id
       tags:
       - category
+  /comments:
+    get:
+      consumes:
+      - application/json
+      description: Get comments by giving limit, page and user_id, post_id.
+      parameters:
+      - in: query
+        name: category_id
+        type: integer
+      - default: 10
+        in: query
+        name: limit
+        required: true
+        type: integer
+      - default: 1
+        in: query
+        name: page
+        required: true
+        type: integer
+      - in: query
+        name: user_id
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/models.GetAllCommentsResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/models.ResponseError'
+      summary: Get comments by giving limit, page and user_id, post_id.
+      tags:
+      - comment
+    post:
+      consumes:
+      - application/json
+      description: Create a comment
+      parameters:
+      - description: Post
+        in: body
+        name: post
+        required: true
+        schema:
+          $ref: '#/definitions/models.CreateCommentRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/models.Comment'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/models.ResponseError'
+      security:
+      - ApiKeyAuth: []
+      summary: Create a comment
+      tags:
+      - comment
+  /comments/delete/{id}:
+    delete:
+      consumes:
+      - application/json
+      description: Delete a comment
+      parameters:
+      - description: ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/models.ResponseSuccess'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/models.ResponseError'
+      security:
+      - ApiKeyAuth: []
+      summary: Delete a comment
+      tags:
+      - comment
+  /comments/update/{id}:
+    put:
+      consumes:
+      - application/json
+      description: Update comment with it's id as param
+      parameters:
+      - description: ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: Comment
+        in: body
+        name: comment
+        required: true
+        schema:
+          $ref: '#/definitions/models.UpdateCommentRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/models.UpdateComment'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/models.ResponseError'
+      security:
+      - ApiKeyAuth: []
+      summary: Update comment with it's id as param
+      tags:
+      - comment
   /file_upload:
     post:
       consumes:

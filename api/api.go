@@ -54,6 +54,11 @@ func New(opt *RoutetOptions) *gin.Engine {
 		apiV1.DELETE("/posts/delete/:id", handlerV1.AuthMiddleWare, handlerV1.DeletePost)
 		apiV1.GET("/posts", handlerV1.GetAllPosts)
 
+		apiV1.POST("/comments", handlerV1.AuthMiddleWare, handlerV1.CreateComment)
+		apiV1.PUT("/comments/update/:id", handlerV1.AuthMiddleWare, handlerV1.UpdateComment)
+		apiV1.DELETE("/comments/delete/:id", handlerV1.AuthMiddleWare, handlerV1.DeleteComment)
+		apiV1.GET("/comments", handlerV1.GetAllComments)
+
 		apiV1.POST("/auth/register", handlerV1.Register)
 		apiV1.POST("/auth/login", handlerV1.Login)
 		apiV1.POST("/auth/verify", handlerV1.Verify)

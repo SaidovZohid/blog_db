@@ -111,3 +111,46 @@ func validateGetAllPostsParams(ctx *gin.Context) (*models.GetAllPostsParams, err
 		SortByDate: sortByDate,
 	}, nil
 }
+
+func validateGetAllCommentsParams(ctx *gin.Context) (*models.GetAllCommentsParams, error) {
+	var (
+		limit int64 = 10
+		page int64 = 1
+		err error
+		userId, postId int64
+	)
+	if ctx.Query("limit") != "" {
+		limit, err = strconv.ParseInt(ctx.Query("limit"), 10, 64)
+		if err != nil {
+			return nil, err
+		}
+	}
+	
+	if ctx.Query("page") != "" {
+		page, err = strconv.ParseInt(ctx.Query("page"), 10, 64)
+		if err != nil {
+			return nil, err
+		}
+	}
+
+	if ctx.Query("user_id") != "" {
+		userId, err = strconv.ParseInt(ctx.Query("user_id"), 10, 64)
+		if err != nil {
+			return nil, err
+		}
+	}
+	
+	if ctx.Query("post_id") != "" {
+		postId, err = strconv.ParseInt(ctx.Query("post_id"), 10, 64)
+		if err != nil {
+			return nil, err
+		}
+	}
+
+	return &models.GetAllCommentsParams{
+		Limit: limit,
+		Page: page,
+		UserID: userId,
+		PostID: postId,
+	}, nil
+}
