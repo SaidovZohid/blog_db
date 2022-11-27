@@ -66,10 +66,10 @@ definitions:
     type: object
   models.CreateCommentRequest:
     properties:
-      category_id:
-        type: integer
       description:
         type: string
+      post_id:
+        type: integer
     type: object
   models.CreatePostRequest:
     properties:

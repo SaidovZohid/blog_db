@@ -30,7 +30,7 @@ type CommentUser struct {
 
 type CreateCommentRequest struct {
 	Description string `json:"description"`
-	PostID      int64  `json:"category_id"`
+	PostID      int64  `json:"post_id"`
 }
 
 type UpdateCommentRequest struct {

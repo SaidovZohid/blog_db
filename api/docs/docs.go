@@ -1313,11 +1313,11 @@ const docTemplate = `{
         "models.CreateCommentRequest": {
             "type": "object",
             "properties": {
-                "category_id": {
-                    "type": "integer"
-                },
                 "description": {
                     "type": "string"
+                },
+                "post_id": {
+                    "type": "integer"
                 }
             }
         },

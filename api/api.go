@@ -10,8 +10,8 @@ import (
 )
 
 type RoutetOptions struct {
-	Cfg     *config.Config
-	Storage storage.StorageI
+	Cfg      *config.Config
+	Storage  storage.StorageI
 	InMemory storage.InMemoryStorageI
 }
 
@@ -28,8 +28,8 @@ func New(opt *RoutetOptions) *gin.Engine {
 	router := gin.Default()
 
 	handlerV1 := v1.New(&v1.HandlerV1Options{
-		Cfg:     opt.Cfg,
-		Storage: &opt.Storage,
+		Cfg:      opt.Cfg,
+		Storage:  &opt.Storage,
 		InMemory: &opt.InMemory,
 	})
 
@@ -65,7 +65,7 @@ func New(opt *RoutetOptions) *gin.Engine {
 
 		apiV1.POST("/auth/forgot-password", handlerV1.ForgotPassword)
 		apiV1.POST("/auth/update-password", handlerV1.AuthMiddleWare, handlerV1.UpdatePassword)
-		apiV1.POST("/auth/verify-forgot-password",  handlerV1.VerifyForgotPassword)
+		apiV1.POST("/auth/verify-forgot-password", handlerV1.VerifyForgotPassword)
 
 		apiV1.POST("/file_upload", handlerV1.AuthMiddleWare, handlerV1.UploadFile)
 
