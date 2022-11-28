@@ -34,11 +34,11 @@ func (h *handlerV1) CreatePost(ctx *gin.Context) {
 	}
 
 	post, err := h.Storage.Post().Create(&repo.Post{
-		Title: req.Title,
+		Title:       req.Title,
 		Description: req.Description,
-		ImageUrl: req.ImageUrl,
-		UserID: req.UserID,
-		CategoryID: req.CategoryID,
+		ImageUrl:    req.ImageUrl,
+		UserID:      req.UserID,
+		CategoryID:  req.CategoryID,
 	})
 
 	if err != nil {
@@ -49,13 +49,13 @@ func (h *handlerV1) CreatePost(ctx *gin.Context) {
 	}
 
 	ctx.JSON(http.StatusOK, models.Post{
-		ID: post.ID,
-		Title: post.Title,
+		ID:          post.ID,
+		Title:       post.Title,
 		Description: post.Description,
-		ImageUrl: post.ImageUrl,
-		UserID: post.UserID,
-		CategoryID: post.CategoryID,
-		CreatedAt: post.CreatedAt,
+		ImageUrl:    post.ImageUrl,
+		UserID:      post.UserID,
+		CategoryID:  post.CategoryID,
+		CreatedAt:   post.CreatedAt,
 	})
 }
 
@@ -67,7 +67,7 @@ func (h *handlerV1) CreatePost(ctx *gin.Context) {
 // @Accept json
 // @Produce json
 // @Param id path int true "ID"
-// @Success 201 {object} models.Category
+// @Success 201 {object} models.Post
 // @Failure 500 {object} models.ResponseError
 func (h *handlerV1) GetPost(ctx *gin.Context) {
 	id, err := strconv.ParseInt(ctx.Param("id"), 10, 64)
@@ -78,26 +78,26 @@ func (h *handlerV1) GetPost(ctx *gin.Context) {
 		return
 	}
 
-	post, err := h.Storage.Post().Get(id)
+	res, err := h.Storage.Post().Get(id)
 
 	if err != nil {
-		ctx.JSON(http.StatusInternalServerError, models.ResponseError{
-			Error: err.Error(),
-		})
+		ctx.JSON(http.StatusInternalServerError, errResponse(err))
 		return
 	}
 
-	ctx.JSON(http.StatusOK, models.Post{
-		ID: post.ID,
-		Title: post.Title,
-		Description: post.Description,
-		ImageUrl: post.ImageUrl,
-		UserID: post.UserID,
-		CategoryID: post.CategoryID,
-		CreatedAt: post.CreatedAt,
-		UpdatedAt: post.UpdatedAt,
-		ViewsCount: post.ViewsCount,
-	})
+	post := parsePostModel(res)
+	
+	likesInfo, err := h.Storage.Like().GetLikesDislikesCount(post.ID)
+	if err != nil {
+		ctx.JSON(http.StatusInternalServerError, errResponse(err))
+		return
+	}
+
+	post.PostLikeInfo = &models.PostLikeInfo{
+		LikesCount: likesInfo.Likes,
+		DislikesCount: likesInfo.Dislikes,
+	}
+	ctx.JSON(http.StatusOK, post)
 }
 
 // @Security ApiKeyAuth
@@ -109,7 +109,7 @@ func (h *handlerV1) GetPost(ctx *gin.Context) {
 // @Produce json
 // @Param id path int true "ID"
 // @Param post body models.UpdatePostRequest true "Post"
-// @Success 201 {object} models.Category
+// @Success 201 {object} models.Post
 // @Failure 500 {object} models.ResponseError
 func (h *handlerV1) UpdatePost(ctx *gin.Context) {
 	id, err := strconv.ParseInt(ctx.Param("id"), 10, 64)
@@ -131,16 +131,16 @@ func (h *handlerV1) UpdatePost(ctx *gin.Context) {
 			Error: err.Error(),
 		})
 		return
-	}	
+	}
 
 	post, err := h.Storage.Post().Update(&repo.Post{
-		ID: id,
-		Title: req.Title,
+		ID:          id,
+		Title:       req.Title,
 		Description: req.Description,
-		ImageUrl: req.ImageUrl,
-		UserID: req.UserID,
-		CategoryID: req.CategoryID,
-		ViewsCount: req.ViewsCount,
+		ImageUrl:    req.ImageUrl,
+		UserID:      req.UserID,
+		CategoryID:  req.CategoryID,
+		ViewsCount:  req.ViewsCount,
 	})
 
 	if err != nil {
@@ -151,15 +151,15 @@ func (h *handlerV1) UpdatePost(ctx *gin.Context) {
 	}
 
 	ctx.JSON(http.StatusOK, models.Post{
-		ID: post.ID,
-		Title: post.Title,
+		ID:          post.ID,
+		Title:       post.Title,
 		Description: post.Description,
-		ImageUrl: post.ImageUrl,
-		UserID: post.UserID,
-		CategoryID: post.CategoryID,
-		ViewsCount: post.ViewsCount,
-		CreatedAt: post.CreatedAt,
-		UpdatedAt: post.UpdatedAt,
+		ImageUrl:    post.ImageUrl,
+		UserID:      post.UserID,
+		CategoryID:  post.CategoryID,
+		ViewsCount:  post.ViewsCount,
+		CreatedAt:   post.CreatedAt,
+		UpdatedAt:   post.UpdatedAt,
 	})
 }
 
@@ -188,7 +188,7 @@ func (h *handlerV1) DeletePost(ctx *gin.Context) {
 		ctx.JSON(http.StatusInternalServerError, models.ResponseError{
 			Error: err.Error(),
 		})
-		return 
+		return
 	}
 
 	ctx.JSON(http.StatusOK, models.ResponseSuccess{
@@ -197,8 +197,8 @@ func (h *handlerV1) DeletePost(ctx *gin.Context) {
 }
 
 // @Router /posts [get]
-// @Summary Get posts by giving limit, page and search for something. 
-// @Description Get posts by giving limit, page and search for something. 
+// @Summary Get posts by giving limit, page and search for something.
+// @Description Get posts by giving limit, page and search for something.
 // @Tags post
 // @Accept json
 // @Produce json
@@ -213,10 +213,10 @@ func (h *handlerV1) GetAllPosts(c *gin.Context) {
 	}
 
 	result, err := h.Storage.Post().GetAll(&repo.GetPostsParams{
-		Limit: params.Limit,
-		Page: params.Page,
-		Search: params.Search,
-		UserID: params.UserID,
+		Limit:      params.Limit,
+		Page:       params.Page,
+		Search:     params.Search,
+		UserID:     params.UserID,
 		CategoryID: params.CategoryID,
 		SortByDate: params.SortByDate,
 	})
@@ -242,17 +242,16 @@ func getPostsResponse(data *repo.GetAllPostResult) *models.GetAllPostsResponse {
 	return &response
 }
 
-
 func parsePostModel(post *repo.Post) models.Post {
 	return models.Post{
-		ID:              post.ID,
-		Title: post.Title,
-		Description:  post.Title,
-		ImageUrl: post.ImageUrl,
-		ViewsCount: post.ViewsCount,
-		UserID: post.UserID,
-		CategoryID: post.CategoryID,
-		CreatedAt:       post.CreatedAt,
-		UpdatedAt: post.UpdatedAt,
+		ID:          post.ID,
+		Title:       post.Title,
+		Description: post.Title,
+		ImageUrl:    post.ImageUrl,
+		ViewsCount:  post.ViewsCount,
+		UserID:      post.UserID,
+		CategoryID:  post.CategoryID,
+		CreatedAt:   post.CreatedAt,
+		UpdatedAt:   post.UpdatedAt,
 	}
 }

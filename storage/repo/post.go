@@ -28,10 +28,10 @@ type GetAllPostResult struct {
 }
 
 type GetPostsParams struct {
-	Limit int64
-	Page int64 
-	Search string
-	UserID int64
+	Limit      int64
+	Page       int64
+	Search     string
+	UserID     int64
 	CategoryID int64
 	SortByDate string
 }

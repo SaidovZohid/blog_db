@@ -2,7 +2,6 @@ package v1
 
 import (
 	"net/http"
-	"strconv"
 
 	"github.com/SaidovZohid/blog_db/api/models"
 	"github.com/SaidovZohid/blog_db/storage/repo"
@@ -65,25 +64,22 @@ func (h *handlerV1) CreateUser(c *gin.Context) {
 }
 
 // @Security ApiKeyAuth
-// @Router /users/{id} [get]
-// @Summary Get user by id
-// @Description Get user by id
+// @Router /users/user-info [get]
+// @Summary Get user
+// @Description Get user
 // @Tags user
 // @Accept json
 // @Produce json
-// @Param id path int true "ID"
 // @Success 201 {object} models.User
 // @Failure 500 {object} models.ResponseError
 func (h *handlerV1) GetUser(c *gin.Context) {
-	id, err := strconv.ParseInt(c.Param("id"), 10, 64)
+	payload, err := h.GetAuthPayload(c)
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, models.ResponseError{
-			Error: err.Error(),
-		})
+		c.JSON(http.StatusInternalServerError, errResponse(err))
 		return
 	}
 
-	resp, err := h.Storage.User().Get(id)
+	resp, err := h.Storage.User().Get(payload.UserID)
 
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, models.ResponseError{
@@ -107,13 +103,12 @@ func (h *handlerV1) GetUser(c *gin.Context) {
 }
 
 // @Security ApiKeyAuth
-// @Router /users/update/{id} [put]
-// @Summary Update user by id
-// @Description Update user by id
+// @Router /users/update [put]
+// @Summary Update user by taking user id from token
+// @Description Update user by taking user id from token
 // @Tags user
 // @Accept json
 // @Produce json
-// @Param id path int true "ID"
 // @Param User body models.CreateUserRequest true "User"
 // @Success 201 {object} models.User
 // @Failure 500 {object} models.ResponseError
@@ -121,25 +116,21 @@ func (h *handlerV1) UpdateUser(c *gin.Context) {
 	var (
 		req models.CreateUserRequest
 	)
-	id, err := strconv.ParseInt(c.Param("id"), 10, 64)
+	payload, err := h.GetAuthPayload(c)
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, models.ResponseError{
-			Error: err.Error(),
-		})
+		c.JSON(http.StatusInternalServerError, errResponse(err))
 		return
 	}
 
 	err = c.ShouldBindJSON(&req)
 
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, models.ResponseError{
-			Error: err.Error(),
-		})
+		c.JSON(http.StatusBadRequest, errResponse(err))
 		return
 	}
 
 	result, err := h.Storage.User().Update(&repo.User{
-		ID: id,
+		ID: payload.UserID,
 		FirstName: req.FirstName,
 		LastName: req.LastName,
 		PhoneNumber: req.PhoneNumber,
@@ -150,9 +141,7 @@ func (h *handlerV1) UpdateUser(c *gin.Context) {
 		Type: req.Type,
 	})
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, models.ResponseError{
-			Error: err.Error(),
-		})
+		c.JSON(http.StatusInternalServerError,errResponse(err))
 		return
 	}
 
@@ -170,24 +159,22 @@ func (h *handlerV1) UpdateUser(c *gin.Context) {
 }
 
 // @Security ApiKeyAuth
-// @Router /users/delete/{id} [delete]
-// @Summary Delete user by id
-// @Description Delete user by id
+// @Router /users/delete [delete]
+// @Summary Delete user by taking user_id from token
+// @Description Delete user by taking user_id from token
 // @Tags user
 // @Accept json
 // @Produce json
-// @Param id path int true "ID"
 // @Success 201 {object} models.ResponseSuccess
 // @Failure 500 {object} models.ResponseError
 func (h *handlerV1) DeleteUser(c *gin.Context) {
-	id, err := strconv.ParseInt(c.Param("id"), 10, 64)
+	payload, err := h.GetAuthPayload(c)
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, models.ResponseError{
-			Error: err.Error(),
-		})
+		c.JSON(http.StatusInternalServerError, errResponse(err))
 		return
 	}
-	err = h.Storage.User().Delete(id)
+
+	err = h.Storage.User().Delete(payload.UserID)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, models.ResponseError{
 			Error: err.Error(),

@@ -728,6 +728,94 @@ const docTemplate = `{
                 }
             }
         },
+        "/likes": {
+            "post": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "Create Or Update like",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "like"
+                ],
+                "summary": "Create Or Update like",
+                "parameters": [
+                    {
+                        "description": "like",
+                        "name": "like",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/models.CreateOrUpdateLikeRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Created",
+                        "schema": {
+                            "$ref": "#/definitions/models.Like"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/models.ResponseError"
+                        }
+                    }
+                }
+            }
+        },
+        "/likes/user-post": {
+            "get": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "Get like by giving to query post_id",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "like"
+                ],
+                "summary": "Get like by giving to query post_id",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "post_id",
+                        "name": "post_id",
+                        "in": "query",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Created",
+                        "schema": {
+                            "$ref": "#/definitions/models.Like"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/models.ResponseError"
+                        }
+                    }
+                }
+            }
+        },
         "/posts": {
             "get": {
                 "description": "Get posts by giving limit, page and search for something.",
@@ -924,7 +1012,7 @@ const docTemplate = `{
                     "201": {
                         "description": "Created",
                         "schema": {
-                            "$ref": "#/definitions/models.Category"
+                            "$ref": "#/definitions/models.Post"
                         }
                     },
                     "500": {
@@ -967,7 +1055,7 @@ const docTemplate = `{
                     "201": {
                         "description": "Created",
                         "schema": {
-                            "$ref": "#/definitions/models.Category"
+                            "$ref": "#/definitions/models.Post"
                         }
                     },
                     "500": {
@@ -1072,14 +1160,14 @@ const docTemplate = `{
                 }
             }
         },
-        "/users/delete/{id}": {
+        "/users/delete": {
             "delete": {
                 "security": [
                     {
                         "ApiKeyAuth": []
                     }
                 ],
-                "description": "Delete user by id",
+                "description": "Delete user by taking user_id from token",
                 "consumes": [
                     "application/json"
                 ],
@@ -1089,16 +1177,7 @@ const docTemplate = `{
                 "tags": [
                     "user"
                 ],
-                "summary": "Delete user by id",
-                "parameters": [
-                    {
-                        "type": "integer",
-                        "description": "ID",
-                        "name": "id",
-                        "in": "path",
-                        "required": true
-                    }
-                ],
+                "summary": "Delete user by taking user_id from token",
                 "responses": {
                     "201": {
                         "description": "Created",
@@ -1115,14 +1194,14 @@ const docTemplate = `{
                 }
             }
         },
-        "/users/update/{id}": {
+        "/users/update": {
             "put": {
                 "security": [
                     {
                         "ApiKeyAuth": []
                     }
                 ],
-                "description": "Update user by id",
+                "description": "Update user by taking user id from token",
                 "consumes": [
                     "application/json"
                 ],
@@ -1132,15 +1211,8 @@ const docTemplate = `{
                 "tags": [
                     "user"
                 ],
-                "summary": "Update user by id",
+                "summary": "Update user by taking user id from token",
                 "parameters": [
-                    {
-                        "type": "integer",
-                        "description": "ID",
-                        "name": "id",
-                        "in": "path",
-                        "required": true
-                    },
                     {
                         "description": "User",
                         "name": "User",
@@ -1167,14 +1239,14 @@ const docTemplate = `{
                 }
             }
         },
-        "/users/{id}": {
+        "/users/user-info": {
             "get": {
                 "security": [
                     {
                         "ApiKeyAuth": []
                     }
                 ],
-                "description": "Get user by id",
+                "description": "Get user",
                 "consumes": [
                     "application/json"
                 ],
@@ -1184,16 +1256,7 @@ const docTemplate = `{
                 "tags": [
                     "user"
                 ],
-                "summary": "Get user by id",
-                "parameters": [
-                    {
-                        "type": "integer",
-                        "description": "ID",
-                        "name": "id",
-                        "in": "path",
-                        "required": true
-                    }
-                ],
+                "summary": "Get user",
                 "responses": {
                     "201": {
                         "description": "Created",
@@ -1318,6 +1381,20 @@ const docTemplate = `{
                 },
                 "post_id": {
                     "type": "integer"
+                }
+            }
+        },
+        "models.CreateOrUpdateLikeRequest": {
+            "type": "object",
+            "required": [
+                "post_id"
+            ],
+            "properties": {
+                "post_id": {
+                    "type": "integer"
+                },
+                "status": {
+                    "type": "boolean"
                 }
             }
         },
@@ -1448,6 +1525,23 @@ const docTemplate = `{
                 }
             }
         },
+        "models.Like": {
+            "type": "object",
+            "properties": {
+                "id": {
+                    "type": "integer"
+                },
+                "post_id": {
+                    "type": "integer"
+                },
+                "status": {
+                    "type": "boolean"
+                },
+                "user_id": {
+                    "type": "integer"
+                }
+            }
+        },
         "models.LoginRequest": {
             "type": "object",
             "required": [
@@ -1483,6 +1577,9 @@ const docTemplate = `{
                 "image_url": {
                     "type": "string"
                 },
+                "like_info": {
+                    "$ref": "#/definitions/models.PostLikeInfo"
+                },
                 "title": {
                     "type": "string"
                 },
@@ -1493,6 +1590,17 @@ const docTemplate = `{
                     "type": "integer"
                 },
                 "views_count": {
+                    "type": "integer"
+                }
+            }
+        },
+        "models.PostLikeInfo": {
+            "type": "object",
+            "properties": {
+                "dislikes_count": {
+                    "type": "integer"
+                },
+                "likes_count": {
                     "type": "integer"
                 }
             }

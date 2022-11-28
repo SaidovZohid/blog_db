@@ -28,7 +28,7 @@ func (pr *postRepo) Create(p *repo.Post) (*repo.Post, error) {
 			category_id
 		) VALUES ($1, $2, $3, $4, $5)
 		RETURNING id, created_at
-	`
+	d`
 
 	err := pr.db.QueryRow(
 		query,
@@ -53,21 +53,28 @@ func (pr *postRepo) Get(post_id int64) (*repo.Post, error) {
 	var (
 		res repo.Post
 	)
+	queryViews := "UPDATE posts SET views_count = views_count + 1 WHERE id = $1"
+	_, err := pr.db.Exec(queryViews, post_id)
+	if err != nil {
+		return nil, err
+	}
+
 	query := `
 		SELECT
-			id,
-			title,
-			description,
-			image_url,
-			user_id,
-			category_id,
-			created_at,
-			updated_at,
-			views_count
-		FROM posts WHERE id = $1
+			p.id,
+			p.title,
+			p.description,
+			p.image_url,
+			p.user_id,
+			p.category_id,
+			p.created_at,
+			p.updated_at,
+			p.views_count
+		FROM posts p 
+		WHERE p.id = $1 
 	`
 
-	err := pr.db.QueryRow(
+	err = pr.db.QueryRow(
 		query,
 		post_id,
 	).Scan(
@@ -168,9 +175,8 @@ func (pr *postRepo) GetAll(params *repo.GetPostsParams) (*repo.GetAllPostResult,
 
 	offset := (params.Page - 1) * params.Limit
 
-	
 	limit := fmt.Sprintf(" LIMIT %d OFFSET %d", params.Limit, offset)
-	
+
 	filter := " WHERE true"
 	if params.Search != "" {
 		filter += " AND title ILIKE '%s'" + "%" + params.Search + "%"
@@ -201,7 +207,7 @@ func (pr *postRepo) GetAll(params *repo.GetPostsParams) (*repo.GetAllPostResult,
 			updated_at,
 			views_count
 		FROM posts
-	` + filter  + orderBy + limit
+	` + filter + orderBy + limit
 
 	rows, err := pr.db.Query(query)
 	if err != nil {
@@ -232,7 +238,7 @@ func (pr *postRepo) GetAll(params *repo.GetPostsParams) (*repo.GetAllPostResult,
 	queryCount := "SELECT count(1) FROM posts " + filter
 
 	err = pr.db.QueryRow(queryCount).Scan(&result.Count)
-	
+
 	if err != nil {
 		return nil, err
 	}

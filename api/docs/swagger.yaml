@@ -71,6 +71,15 @@ definitions:
       post_id:
         type: integer
     type: object
+  models.CreateOrUpdateLikeRequest:
+    properties:
+      post_id:
+        type: integer
+      status:
+        type: boolean
+    required:
+    - post_id
+    type: object
   models.CreatePostRequest:
     properties:
       category_id:
@@ -155,6 +164,17 @@ definitions:
       count:
         type: integer
     type: object
+  models.Like:
+    properties:
+      id:
+        type: integer
+      post_id:
+        type: integer
+      status:
+        type: boolean
+      user_id:
+        type: integer
+    type: object
   models.LoginRequest:
     properties:
       email:
@@ -179,6 +199,8 @@ definitions:
         type: integer
       image_url:
         type: string
+      like_info:
+        $ref: '#/definitions/models.PostLikeInfo'
       title:
         type: string
       updated_at:
@@ -186,6 +208,13 @@ definitions:
       user_id:
         type: integer
       views_count:
+        type: integer
+    type: object
+  models.PostLikeInfo:
+    properties:
+      dislikes_count:
+        type: integer
+      likes_count:
         type: integer
     type: object
   models.RegisterRequest:
@@ -756,6 +785,61 @@ paths:
       summary: File upload
       tags:
       - file-upload
+  /likes:
+    post:
+      consumes:
+      - application/json
+      description: Create Or Update like
+      parameters:
+      - description: like
+        in: body
+        name: like
+        required: true
+        schema:
+          $ref: '#/definitions/models.CreateOrUpdateLikeRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/models.Like'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/models.ResponseError'
+      security:
+      - ApiKeyAuth: []
+      summary: Create Or Update like
+      tags:
+      - like
+  /likes/user-post:
+    get:
+      consumes:
+      - application/json
+      description: Get like by giving to query post_id
+      parameters:
+      - description: post_id
+        in: query
+        name: post_id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/models.Like'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/models.ResponseError'
+      security:
+      - ApiKeyAuth: []
+      summary: Get like by giving to query post_id
+      tags:
+      - like
   /posts:
     get:
       consumes:
@@ -846,7 +930,7 @@ paths:
         "201":
           description: Created
           schema:
-            $ref: '#/definitions/models.Category'
+            $ref: '#/definitions/models.Post'
         "500":
           description: Internal Server Error
           schema:
@@ -906,7 +990,7 @@ paths:
         "201":
           description: Created
           schema:
-            $ref: '#/definitions/models.Category'
+            $ref: '#/definitions/models.Post'
         "500":
           description: Internal Server Error
           schema:
@@ -976,44 +1060,11 @@ paths:
       summary: Create a user
       tags:
       - user
-  /users/{id}:
-    get:
-      consumes:
-      - application/json
-      description: Get user by id
-      parameters:
-      - description: ID
-        in: path
-        name: id
-        required: true
-        type: integer
-      produces:
-      - application/json
-      responses:
-        "201":
-          description: Created
-          schema:
-            $ref: '#/definitions/models.User'
-        "500":
-          description: Internal Server Error
-          schema:
-            $ref: '#/definitions/models.ResponseError'
-      security:
-      - ApiKeyAuth: []
-      summary: Get user by id
-      tags:
-      - user
-  /users/delete/{id}:
+  /users/delete:
     delete:
       consumes:
       - application/json
-      description: Delete user by id
-      parameters:
-      - description: ID
-        in: path
-        name: id
-        required: true
-        type: integer
+      description: Delete user by taking user_id from token
       produces:
       - application/json
       responses:
@@ -1027,20 +1078,15 @@ paths:
             $ref: '#/definitions/models.ResponseError'
       security:
       - ApiKeyAuth: []
-      summary: Delete user by id
+      summary: Delete user by taking user_id from token
       tags:
       - user
-  /users/update/{id}:
+  /users/update:
     put:
       consumes:
       - application/json
-      description: Update user by id
+      description: Update user by taking user id from token
       parameters:
-      - description: ID
-        in: path
-        name: id
-        required: true
-        type: integer
       - description: User
         in: body
         name: User
@@ -1060,7 +1106,28 @@ paths:
             $ref: '#/definitions/models.ResponseError'
       security:
       - ApiKeyAuth: []
-      summary: Update user by id
+      summary: Update user by taking user id from token
+      tags:
+      - user
+  /users/user-info:
+    get:
+      consumes:
+      - application/json
+      description: Get user
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/models.User'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/models.ResponseError'
+      security:
+      - ApiKeyAuth: []
+      summary: Get user
       tags:
       - user
 securityDefinitions:

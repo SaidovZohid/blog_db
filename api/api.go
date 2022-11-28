@@ -36,10 +36,11 @@ func New(opt *RoutetOptions) *gin.Engine {
 	apiV1 := router.Group("/v1")
 	router.Static("/medias", "./media")
 	{
+
 		apiV1.POST("/users", handlerV1.CreateUser)
-		apiV1.GET("/users/:id", handlerV1.GetUser)
-		apiV1.PUT("/users/update/:id", handlerV1.UpdateUser)
-		apiV1.DELETE("/users/delete/:id", handlerV1.DeleteUser)
+		apiV1.GET("/users/user-info", handlerV1.AuthMiddleWare, handlerV1.GetUser)
+		apiV1.PUT("/users/update", handlerV1.AuthMiddleWare, handlerV1.UpdateUser)
+		apiV1.DELETE("/users/delete", handlerV1.AuthMiddleWare, handlerV1.DeleteUser)
 		apiV1.GET("/users", handlerV1.GetAllUsers)
 
 		apiV1.POST("/categories", handlerV1.CreateCategory)
@@ -58,6 +59,9 @@ func New(opt *RoutetOptions) *gin.Engine {
 		apiV1.PUT("/comments/update/:id", handlerV1.AuthMiddleWare, handlerV1.UpdateComment)
 		apiV1.DELETE("/comments/delete/:id", handlerV1.AuthMiddleWare, handlerV1.DeleteComment)
 		apiV1.GET("/comments", handlerV1.GetAllComments)
+
+		apiV1.POST("/likes", handlerV1.AuthMiddleWare, handlerV1.CreateOrUpdateLike)
+		apiV1.GET("/likes/user-post", handlerV1.AuthMiddleWare, handlerV1.GetLike)
 
 		apiV1.POST("/auth/register", handlerV1.Register)
 		apiV1.POST("/auth/login", handlerV1.Login)

@@ -8,18 +8,15 @@ type Like struct {
 }
 
 type LikeStorageI interface {
-	Create(like *Like) error
-	Update(like *Like) error
-	Delete(like_id int64) error
-	GetAll(params *GetAllLikesParams) (*GetAllLikes, error)
+	CreateOrUpdate(like *Like) (*Like, error)
+	// Update(like *Like) error
+	Get(userID, postID int64) (*Like, error)
+	GetLikesDislikesCount(postID int64) (*LikesDislikesCountResult, error) 
+	// Delete(like_id int64) error
+	// GetAll(post_id int64) (*GetAllLikes, error)
 }
 
-type GetAllLikes struct {
-	Likes    int
-	Dislikes int
-}
-
-type GetAllLikesParams struct {
-	UserID int64
-	PostID int64
+type LikesDislikesCountResult struct {
+	Likes    int64
+	Dislikes int64
 }

@@ -11,5 +11,6 @@ CREATE TABLE IF NOT EXISTS "likes"(
     "id" SERIAL PRIMARY KEY,
     "post_id" int not null REFERENCES users(id),
     "user_id" int not null REFERENCES users(id),
-    "status" boolean not null 
+    "status" boolean not null,
+    UNIQUE(post_id, user_id)
 );
