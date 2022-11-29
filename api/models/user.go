@@ -9,7 +9,7 @@ type User struct {
 	PhoneNumber     *string   `json:"phone_number"`
 	Email           string    `json:"email"`
 	Gender          *string   `json:"gender"`
-	UserName        *string    `json:"username"`
+	UserName        *string   `json:"username"`
 	ProfileImageUrl *string   `json:"profile_image_url"`
 	Type            string    `json:"type"`
 	CreatedAt       time.Time `json:"created_at"`
@@ -21,9 +21,9 @@ type CreateUserRequest struct {
 	PhoneNumber     *string `json:"phone_number"`
 	Email           string  `json:"email" binding:"required,email"`
 	Gender          *string `json:"gender" binding:"required,oneof=male female"`
-	UserName        *string  `json:"username"`
+	UserName        *string `json:"username"`
 	ProfileImageUrl *string `json:"profile_image_url"`
-	Type            string  `json:"type" binding:"required,oneof= superadmin user"`
+	Type            string  `json:"type" binding:"required,oneof=superadmin user"`
 	Password        string  `json:"password" binding:"required,min=6,max=16"`
 }
 

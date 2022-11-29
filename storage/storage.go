@@ -14,7 +14,7 @@ type StorageI interface {
 	Like() repo.LikeStorageI
 }
 
-type storagePg struct {
+type StoragePg struct {
 	userRepo repo.UserStorageI
 	categoryRepo repo.CategoryStorageI
 	postRepo repo.PostStorageI
@@ -23,7 +23,7 @@ type storagePg struct {
 }
 
 func NewStoragePg(db *sqlx.DB) StorageI {
-	return &storagePg{
+	return &StoragePg{
 		userRepo: postgres.NewUser(db),
 		categoryRepo: postgres.NewCategory(db),
 		postRepo: postgres.NewPost(db),
@@ -32,22 +32,22 @@ func NewStoragePg(db *sqlx.DB) StorageI {
 	}
 }
 
-func (s *storagePg) User() repo.UserStorageI {
+func (s *StoragePg) User() repo.UserStorageI {
 	return s.userRepo
 }
 
-func (s *storagePg) Category() repo.CategoryStorageI {
+func (s *StoragePg) Category() repo.CategoryStorageI {
 	return s.categoryRepo
 }
 
-func (s *storagePg) Post() repo.PostStorageI {
+func (s *StoragePg) Post() repo.PostStorageI {
 	return s.postRepo
 }
 
-func (s *storagePg) Comment() repo.CommentStorageI {
+func (s *StoragePg) Comment() repo.CommentStorageI {
 	return s.commentRepo
 }
 
-func (s *storagePg) Like() repo.LikeStorageI {
+func (s *StoragePg) Like() repo.LikeStorageI {
 	return s.likeRepo
 }
