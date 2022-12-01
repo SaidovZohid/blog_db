@@ -21,6 +21,7 @@ RUN curl -L https://github.com/golang-migrate/migrate/releases/download/v4.15.2/
 FROM alpine:3.16
 
 WORKDIR /blog
+RUN mkdir media
 
 COPY --from=builder /blog/main .
 COPY --from=builder /blog/migrate ./migrate

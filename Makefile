@@ -11,6 +11,9 @@ print:
 swag-init:
 	swag init -g api/api.go -o api/docs
 
+composeup:
+	docker compose --env-file ./.env.docker up
+
 migrateup:
 	migrate -path migrations -database "$(DB_URL)" -verbose up
 
