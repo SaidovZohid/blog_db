@@ -51,6 +51,7 @@ func (h *handlerV1) Register(ctx *gin.Context) {
 	_, err = h.Storage.User().GetByEmail(req.Email)
 	if !errors.Is(err, sql.ErrNoRows) {
 		ctx.JSON(http.StatusBadRequest, errResponse(ErrEmailExists))
+		return 
 	}
 
 	hashedPassword, err := utils.HashPassword(req.Password)
@@ -76,6 +77,7 @@ func (h *handlerV1) Register(ctx *gin.Context) {
 	err = h.inMemory.Set("user_" + req.Email, string(userData), 10 * time.Minute)
 	if err != nil {
 		ctx.JSON(http.StatusInternalServerError, errResponse(err))
+		return
 	}
 	
 	go func(){

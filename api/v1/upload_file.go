@@ -1,7 +1,6 @@
 package v1
 
 import (
-	"log"
 	"mime/multipart"
 	"net/http"
 	"os"
@@ -30,32 +29,27 @@ func (h *handlerV1) UploadFile(ctx *gin.Context) {
 	var file File
 
 	if err := ctx.ShouldBind(&file); err != nil {
-		log.Print("HEllo World 1")
 		ctx.JSON(http.StatusBadRequest, models.ResponseError{
 			Error: err.Error(),
 		})
 		return
 	}
 	id := uuid.New()
-	log.Print(filepath.Ext(file.File.Filename))
 	fileName := id.String() + filepath.Ext(file.File.Filename)
 	dir, _ := os.Getwd()
 
 	if _, err := os.Stat(dir + "/media"); os.IsNotExist(err) {
-		log.Print("HEllo World 2")
-		os.Mkdir(dir + "/media", os.ModePerm)
+		os.Mkdir(dir+"/media", os.ModePerm)
 	}
 
 	filePath := "/media/" + fileName
-	err := ctx.SaveUploadedFile(file.File, dir + filePath)
+	err := ctx.SaveUploadedFile(file.File, dir+filePath)
 	if err != nil {
-		log.Print("HEllo World 3")
 		ctx.JSON(http.StatusInternalServerError, models.ResponseError{
 			Error: err.Error(),
 		})
 		return
 	}
-	log.Print("HEllo World 4")
 	ctx.JSON(http.StatusCreated, models.ResponseSuccess{
 		Success: filePath,
 	})
