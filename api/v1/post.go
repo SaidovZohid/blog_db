@@ -19,6 +19,7 @@ import (
 // @Param post body models.CreatePostRequest true "Post"
 // @Success 201 {object} models.Post
 // @Failure 500 {object} models.ResponseError
+// @Failure 400 {object} models.ResponseError
 func (h *handlerV1) CreatePost(ctx *gin.Context) {
 	var (
 		req models.CreatePostRequest
@@ -27,9 +28,7 @@ func (h *handlerV1) CreatePost(ctx *gin.Context) {
 	err := ctx.ShouldBindJSON(&req)
 
 	if err != nil {
-		ctx.JSON(http.StatusInternalServerError, models.ResponseError{
-			Error: err.Error(),
-		})
+		ctx.JSON(http.StatusBadRequest, errResponse(err))
 		return
 	}
 
@@ -42,9 +41,7 @@ func (h *handlerV1) CreatePost(ctx *gin.Context) {
 	})
 
 	if err != nil {
-		ctx.JSON(http.StatusInternalServerError, models.ResponseError{
-			Error: err.Error(),
-		})
+		ctx.JSON(http.StatusInternalServerError, errResponse(err))
 		return
 	}
 
@@ -69,12 +66,11 @@ func (h *handlerV1) CreatePost(ctx *gin.Context) {
 // @Param id path int true "ID"
 // @Success 201 {object} models.Post
 // @Failure 500 {object} models.ResponseError
+// @Failure 400 {object} models.ResponseError
 func (h *handlerV1) GetPost(ctx *gin.Context) {
 	id, err := strconv.ParseInt(ctx.Param("id"), 10, 64)
 	if err != nil {
-		ctx.JSON(http.StatusInternalServerError, models.ResponseError{
-			Error: err.Error(),
-		})
+		ctx.JSON(http.StatusBadRequest, errResponse(err))
 		return
 	}
 
@@ -101,7 +97,7 @@ func (h *handlerV1) GetPost(ctx *gin.Context) {
 }
 
 // @Security ApiKeyAuth
-// @Router /posts/update/{id} [put]
+// @Router /posts/{id} [put]
 // @Summary Update post with it's id as param
 // @Description Update post with it's id as param
 // @Tags post
@@ -111,12 +107,11 @@ func (h *handlerV1) GetPost(ctx *gin.Context) {
 // @Param post body models.UpdatePostRequest true "Post"
 // @Success 201 {object} models.Post
 // @Failure 500 {object} models.ResponseError
+// @Failure 400 {object} models.ResponseError
 func (h *handlerV1) UpdatePost(ctx *gin.Context) {
 	id, err := strconv.ParseInt(ctx.Param("id"), 10, 64)
 	if err != nil {
-		ctx.JSON(http.StatusInternalServerError, models.ResponseError{
-			Error: err.Error(),
-		})
+		ctx.JSON(http.StatusBadRequest, errResponse(err))
 		return
 	}
 
@@ -127,9 +122,7 @@ func (h *handlerV1) UpdatePost(ctx *gin.Context) {
 	err = ctx.ShouldBindJSON(&req)
 
 	if err != nil {
-		ctx.JSON(http.StatusInternalServerError, models.ResponseError{
-			Error: err.Error(),
-		})
+		ctx.JSON(http.StatusBadRequest, errResponse(err))
 		return
 	}
 
@@ -144,9 +137,7 @@ func (h *handlerV1) UpdatePost(ctx *gin.Context) {
 	})
 
 	if err != nil {
-		ctx.JSON(http.StatusInternalServerError, models.ResponseError{
-			Error: err.Error(),
-		})
+		ctx.JSON(http.StatusInternalServerError, errResponse(err))
 		return
 	}
 
@@ -164,7 +155,7 @@ func (h *handlerV1) UpdatePost(ctx *gin.Context) {
 }
 
 // @Security ApiKeyAuth
-// @Router /posts/delete/{id} [delete]
+// @Router /posts/{id} [delete]
 // @Summary Delete a post
 // @Description Create a post
 // @Tags post
@@ -173,21 +164,18 @@ func (h *handlerV1) UpdatePost(ctx *gin.Context) {
 // @Param id path int true "ID"
 // @Success 201 {object} models.ResponseSuccess
 // @Failure 500 {object} models.ResponseError
+// @Failure 400 {object} models.ResponseError
 func (h *handlerV1) DeletePost(ctx *gin.Context) {
 	id, err := strconv.ParseInt(ctx.Param("id"), 10, 64)
 	if err != nil {
-		ctx.JSON(http.StatusInternalServerError, models.ResponseError{
-			Error: err.Error(),
-		})
+		ctx.JSON(http.StatusBadRequest, errResponse(err))
 		return
 	}
 
 	err = h.Storage.Post().Delete(id)
 
 	if err != nil {
-		ctx.JSON(http.StatusInternalServerError, models.ResponseError{
-			Error: err.Error(),
-		})
+		ctx.JSON(http.StatusInternalServerError, errResponse(err))
 		return
 	}
 
@@ -205,10 +193,11 @@ func (h *handlerV1) DeletePost(ctx *gin.Context) {
 // @Param filter query models.GetAllPostsParams false "Filter"
 // @Success 201 {object} models.GetAllPostsResponse
 // @Failure 500 {object} models.ResponseError
+// @Failure 400 {object} models.ResponseError
 func (h *handlerV1) GetAllPosts(c *gin.Context) {
 	params, err := validateGetAllPostsParams(c)
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, errResponse(err))
+		c.JSON(http.StatusBadRequest, errResponse(err))
 		return
 	}
 

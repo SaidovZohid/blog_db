@@ -1,6 +1,7 @@
 package postgres
 
 import (
+	"database/sql"
 	"fmt"
 
 	"github.com/SaidovZohid/blog_db/storage/repo"
@@ -69,7 +70,7 @@ func (cr *categoryRepo) Update(category *repo.Category) (*repo.Category, error) 
 		UPDATE categories SET 
 			title = $1
 		WHERE id = $2 
-		RETURNING id, title, created_at
+		RETURNING id, created_at
 	`
 
 	var result repo.Category
@@ -80,7 +81,6 @@ func (cr *categoryRepo) Update(category *repo.Category) (*repo.Category, error) 
 		category.ID,
 	).Scan(
 		&result.ID,
-		&result.Title,
 		&result.CreatedAt,
 	)
 
@@ -96,13 +96,20 @@ func (cr *categoryRepo) Delete(category_id int64) error {
 		DELETE FROM categories WHERE id = $1
 	`
 
-	_, err := cr.db.Exec(
+	row, err := cr.db.Exec(
 		query,
 		category_id,
 	)
-
 	if err != nil {
 		return err
+	}
+	rowsAffected, err := row.RowsAffected()
+	if err != nil {
+		return err
+	}
+
+	if rowsAffected == 0 {
+		return sql.ErrNoRows
 	}
 
 	return nil

@@ -14,7 +14,7 @@ func createUser(t *testing.T) *repo.User {
 	user, err := dbManager.User().Create(&repo.User{
 		FirstName: "Zohid",
 		LastName:  "Saidov",
-		Email:     "zohidsaidov17+1@gmail.com",
+		Email:     "zohidsaidov17+2@gmail.com",
 		Password:  hashedPassword,
 		Type:      "user",
 	})

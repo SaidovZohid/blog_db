@@ -21,28 +21,22 @@ func NewComment(db *sqlx.DB) repo.CommentStorageI {
 func (pr *commentRepo) Create(c *repo.Comment) (*repo.Comment, error) {
 	query := `
 		INSERT INTO comments (
-			user_id,
 			post_id,
+			user_id,
 			description
 		) VALUES ($1, $2, $3)
 		RETURNING 
 		id, 
-		user_id,
-		post_id,
-		description,
 		created_at
 	`
 
 	err := pr.db.QueryRow(
 		query,
-		c.UserID,
 		c.PostID,
+		c.UserID,
 		c.Description,
 	).Scan(
 		&c.ID,
-		&c.UserID,
-		&c.PostID,
-		&c.Description,
 		&c.CreatedAt,
 	)
 

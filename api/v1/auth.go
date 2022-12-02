@@ -15,19 +15,6 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-var (
-	ErrWrongEmailOrPassword = errors.New("wrong email or password")
-	ErrUserNotVerifid       = errors.New("user not verified")
-	ErrEmailExists          = errors.New("email is already exists")
-	ErrIncorrectCode        = errors.New("incorrect verification code")
-	ErrCodeExpired          = errors.New("verification is expired")
-)
-
-const (
-	RegisterCodeKey = "register_code_"
-	ForgotPasswordKey = "forgot_password_key_"
-)
-
 // @Router /auth/register [post]
 // @Summary Create user with token key and get token key.
 // @Description Create user with token key and get token key.

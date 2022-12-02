@@ -38,26 +38,27 @@ func New(opt *RoutetOptions) *gin.Engine {
 	{
 
 		apiV1.POST("/users", handlerV1.CreateUser)
-		apiV1.GET("/users/user-info", handlerV1.AuthMiddleWare, handlerV1.GetUser)
-		apiV1.PUT("/users/update", handlerV1.AuthMiddleWare, handlerV1.UpdateUser)
-		apiV1.DELETE("/users/delete", handlerV1.AuthMiddleWare, handlerV1.DeleteUser)
+		apiV1.GET("/users/:id", handlerV1.GetUser)
+		apiV1.GET("/users/me", handlerV1.AuthMiddleWare, handlerV1.GetUserProfile)
+		apiV1.PUT("/users/:id", handlerV1.AuthMiddleWare, handlerV1.UpdateUser)
+		apiV1.DELETE("/users/:id", handlerV1.AuthMiddleWare, handlerV1.DeleteUser)
 		apiV1.GET("/users", handlerV1.GetAllUsers)
 
-		apiV1.POST("/categories", handlerV1.CreateCategory)
+		apiV1.POST("/categories", handlerV1.AuthMiddleWare, handlerV1.CreateCategory)
 		apiV1.GET("/categories/:id", handlerV1.GetCategory)
-		apiV1.PUT("/categories/update/:id", handlerV1.UpdateCategory)
-		apiV1.DELETE("/categories/delete/:id", handlerV1.DeleteCategory)
+		apiV1.PUT("/categories/:id", handlerV1.AuthMiddleWare, handlerV1.UpdateCategory)
+		apiV1.DELETE("/categories/:id", handlerV1.AuthMiddleWare, handlerV1.DeleteCategory)
 		apiV1.GET("/categories", handlerV1.GetAllCategories)
 
 		apiV1.POST("/posts", handlerV1.AuthMiddleWare, handlerV1.CreatePost)
 		apiV1.GET("/posts/:id", handlerV1.GetPost)
-		apiV1.PUT("/posts/update/:id", handlerV1.AuthMiddleWare, handlerV1.UpdatePost)
-		apiV1.DELETE("/posts/delete/:id", handlerV1.AuthMiddleWare, handlerV1.DeletePost)
+		apiV1.PUT("/posts/:id", handlerV1.AuthMiddleWare, handlerV1.UpdatePost)
+		apiV1.DELETE("/posts/:id", handlerV1.AuthMiddleWare, handlerV1.DeletePost)
 		apiV1.GET("/posts", handlerV1.GetAllPosts)
 
 		apiV1.POST("/comments", handlerV1.AuthMiddleWare, handlerV1.CreateComment)
-		apiV1.PUT("/comments/update/:id", handlerV1.AuthMiddleWare, handlerV1.UpdateComment)
-		apiV1.DELETE("/comments/delete/:id", handlerV1.AuthMiddleWare, handlerV1.DeleteComment)
+		apiV1.PUT("/comments/:id", handlerV1.AuthMiddleWare, handlerV1.UpdateComment)
+		apiV1.DELETE("/comments/:id", handlerV1.AuthMiddleWare, handlerV1.DeleteComment)
 		apiV1.GET("/comments", handlerV1.GetAllComments)
 
 		apiV1.POST("/likes", handlerV1.AuthMiddleWare, handlerV1.CreateOrUpdateLike)
@@ -72,9 +73,9 @@ func New(opt *RoutetOptions) *gin.Engine {
 		apiV1.POST("/auth/verify-forgot-password", handlerV1.VerifyForgotPassword)
 
 		apiV1.POST("/file_upload", handlerV1.AuthMiddleWare, handlerV1.UploadFile)
-
-		router.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
 	}
+
+	router.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
 
 	return router
 }

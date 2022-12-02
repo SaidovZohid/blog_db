@@ -1,13 +1,16 @@
 package utils
 
 import (
+	"log"
 	"testing"
+
 	"github.com/stretchr/testify/require"
 )
 
 func TestPassword(t *testing.T) {
-	password := "1234567"
+	password := "secret-password"
 	hashedPassword, err := HashPassword(password)
+	log.Print(hashedPassword)
 	require.NoError(t, err)
 	require.NotEmpty(t, password)
 

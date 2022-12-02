@@ -54,7 +54,7 @@ func (h *handlerV1) CreateComment(ctx *gin.Context) {
 }
 
 // @Security ApiKeyAuth
-// @Router /comments/update/{id} [put]
+// @Router /comments/{id} [put]
 // @Summary Update comment with it's id as param
 // @Description Update comment with it's id as param
 // @Tags comment
@@ -101,7 +101,7 @@ func (h *handlerV1) UpdateComment(ctx *gin.Context) {
 }
 
 // @Security ApiKeyAuth
-// @Router /comments/delete/{id} [delete]
+// @Router /comments/{id} [delete]
 // @Summary Delete a comment
 // @Description Delete a comment
 // @Tags comment

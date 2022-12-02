@@ -98,19 +98,30 @@ definitions:
       email:
         type: string
       first_name:
+        maxLength: 30
+        minLength: 2
         type: string
       gender:
+        enum:
+        - male
+        - female
         type: string
       last_name:
+        maxLength: 30
+        minLength: 2
         type: string
       password:
         maxLength: 16
+        minLength: 6
         type: string
       phone_number:
         type: string
       profile_image_url:
         type: string
       type:
+        enum:
+        - superadmin
+        - user
         type: string
       username:
         type: string
@@ -119,6 +130,7 @@ definitions:
     - first_name
     - gender
     - last_name
+    - password
     - type
     type: object
   models.ForgotPasswordRequest:
@@ -549,33 +561,6 @@ paths:
       tags:
       - category
   /categories/{id}:
-    get:
-      consumes:
-      - application/json
-      description: Get category by it's id
-      parameters:
-      - description: ID
-        in: path
-        name: id
-        required: true
-        type: integer
-      produces:
-      - application/json
-      responses:
-        "201":
-          description: Created
-          schema:
-            $ref: '#/definitions/models.Category'
-        "500":
-          description: Internal Server Error
-          schema:
-            $ref: '#/definitions/models.ResponseError'
-      security:
-      - ApiKeyAuth: []
-      summary: Get category by it's id
-      tags:
-      - category
-  /categories/delete/{id}:
     delete:
       consumes:
       - application/json
@@ -602,7 +587,32 @@ paths:
       summary: Update category by it's id
       tags:
       - category
-  /categories/update/{id}:
+    get:
+      consumes:
+      - application/json
+      description: Get category by it's id
+      parameters:
+      - description: ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/models.Category'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/models.ResponseError'
+      security:
+      - ApiKeyAuth: []
+      summary: Get category by it's id
+      tags:
+      - category
     put:
       consumes:
       - application/json
@@ -698,7 +708,7 @@ paths:
       summary: Create a comment
       tags:
       - comment
-  /comments/delete/{id}:
+  /comments/{id}:
     delete:
       consumes:
       - application/json
@@ -725,7 +735,6 @@ paths:
       summary: Delete a comment
       tags:
       - comment
-  /comments/update/{id}:
     put:
       consumes:
       - application/json
@@ -879,6 +888,10 @@ paths:
           description: Created
           schema:
             $ref: '#/definitions/models.GetAllPostsResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/models.ResponseError'
         "500":
           description: Internal Server Error
           schema:
@@ -904,6 +917,10 @@ paths:
           description: Created
           schema:
             $ref: '#/definitions/models.Post'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/models.ResponseError'
         "500":
           description: Internal Server Error
           schema:
@@ -914,33 +931,6 @@ paths:
       tags:
       - post
   /posts/{id}:
-    get:
-      consumes:
-      - application/json
-      description: Create a post with it's id
-      parameters:
-      - description: ID
-        in: path
-        name: id
-        required: true
-        type: integer
-      produces:
-      - application/json
-      responses:
-        "201":
-          description: Created
-          schema:
-            $ref: '#/definitions/models.Post'
-        "500":
-          description: Internal Server Error
-          schema:
-            $ref: '#/definitions/models.ResponseError'
-      security:
-      - ApiKeyAuth: []
-      summary: Get a post with it's id
-      tags:
-      - post
-  /posts/delete/{id}:
     delete:
       consumes:
       - application/json
@@ -958,6 +948,10 @@ paths:
           description: Created
           schema:
             $ref: '#/definitions/models.ResponseSuccess'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/models.ResponseError'
         "500":
           description: Internal Server Error
           schema:
@@ -967,7 +961,36 @@ paths:
       summary: Delete a post
       tags:
       - post
-  /posts/update/{id}:
+    get:
+      consumes:
+      - application/json
+      description: Create a post with it's id
+      parameters:
+      - description: ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/models.Post'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/models.ResponseError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/models.ResponseError'
+      security:
+      - ApiKeyAuth: []
+      summary: Get a post with it's id
+      tags:
+      - post
     put:
       consumes:
       - application/json
@@ -991,6 +1014,10 @@ paths:
           description: Created
           schema:
             $ref: '#/definitions/models.Post'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/models.ResponseError'
         "500":
           description: Internal Server Error
           schema:
@@ -1026,6 +1053,10 @@ paths:
           description: Created
           schema:
             $ref: '#/definitions/models.GetAllUsersResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/models.ResponseError'
         "500":
           description: Internal Server Error
           schema:
@@ -1051,6 +1082,10 @@ paths:
           description: Created
           schema:
             $ref: '#/definitions/models.User'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/models.ResponseError'
         "500":
           description: Internal Server Error
           schema:
@@ -1060,11 +1095,17 @@ paths:
       summary: Create a user
       tags:
       - user
-  /users/delete:
+  /users/{id}:
     delete:
       consumes:
       - application/json
-      description: Delete user by taking user_id from token
+      description: Delete user
+      parameters:
+      - description: ID
+        in: path
+        name: id
+        required: true
+        type: integer
       produces:
       - application/json
       responses:
@@ -1072,21 +1113,63 @@ paths:
           description: Created
           schema:
             $ref: '#/definitions/models.ResponseSuccess'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/models.ResponseError'
         "500":
           description: Internal Server Error
           schema:
             $ref: '#/definitions/models.ResponseError'
       security:
       - ApiKeyAuth: []
-      summary: Delete user by taking user_id from token
+      summary: Delete user
       tags:
       - user
-  /users/update:
+    get:
+      consumes:
+      - application/json
+      description: Get user
+      parameters:
+      - description: ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/models.User'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/models.ResponseError'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/models.ResponseError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/models.ResponseError'
+      security:
+      - ApiKeyAuth: []
+      summary: Get user
+      tags:
+      - user
     put:
       consumes:
       - application/json
-      description: Update user by taking user id from token
+      description: Update user
       parameters:
+      - description: ID
+        in: path
+        name: id
+        required: true
+        type: integer
       - description: User
         in: body
         name: User
@@ -1100,20 +1183,24 @@ paths:
           description: Created
           schema:
             $ref: '#/definitions/models.User'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/models.ResponseError'
         "500":
           description: Internal Server Error
           schema:
             $ref: '#/definitions/models.ResponseError'
       security:
       - ApiKeyAuth: []
-      summary: Update user by taking user id from token
+      summary: Update user
       tags:
       - user
-  /users/user-info:
+  /users/me:
     get:
       consumes:
       - application/json
-      description: Get user
+      description: Get user by token
       produces:
       - application/json
       responses:
@@ -1121,13 +1208,21 @@ paths:
           description: Created
           schema:
             $ref: '#/definitions/models.User'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/models.ResponseError'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/models.ResponseError'
         "500":
           description: Internal Server Error
           schema:
             $ref: '#/definitions/models.ResponseError'
       security:
       - ApiKeyAuth: []
-      summary: Get user
+      summary: Get user by token
       tags:
       - user
 securityDefinitions:
