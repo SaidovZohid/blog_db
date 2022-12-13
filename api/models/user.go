@@ -20,7 +20,7 @@ type CreateUserRequest struct {
 	LastName        string  `json:"last_name" binding:"required,min=2,max=30"`
 	PhoneNumber     *string `json:"phone_number"`
 	Email           string  `json:"email" binding:"required,email"`
-	Gender          *string `json:"gender" binding:"required,oneof=male female"`
+	Gender          *string `json:"gender" binding:"required, oneof=male female"`
 	UserName        *string `json:"username"`
 	ProfileImageUrl *string `json:"profile_image_url"`
 	Type            string  `json:"type" binding:"required,oneof=superadmin user"`

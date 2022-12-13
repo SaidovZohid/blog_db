@@ -15,20 +15,20 @@ type StorageI interface {
 }
 
 type StoragePg struct {
-	userRepo repo.UserStorageI
+	userRepo     repo.UserStorageI
 	categoryRepo repo.CategoryStorageI
-	postRepo repo.PostStorageI
-	commentRepo repo.CommentStorageI
-	likeRepo repo.LikeStorageI
+	postRepo     repo.PostStorageI
+	commentRepo  repo.CommentStorageI
+	likeRepo     repo.LikeStorageI
 }
 
 func NewStoragePg(db *sqlx.DB) StorageI {
 	return &StoragePg{
-		userRepo: postgres.NewUser(db),
+		userRepo:     postgres.NewUser(db),
 		categoryRepo: postgres.NewCategory(db),
-		postRepo: postgres.NewPost(db),
-		commentRepo: postgres.NewComment(db),
-		likeRepo: postgres.NewLike(db),
+		postRepo:     postgres.NewPost(db),
+		commentRepo:  postgres.NewComment(db),
+		likeRepo:     postgres.NewLike(db),
 	}
 }
 
