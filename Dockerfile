@@ -27,7 +27,7 @@ COPY --from=builder /blog/migrate ./migrate
 COPY migrations ./migrations
 COPY templates ./templates
 
-EXPOSE 8080
+EXPOSE 8005
 
 # running built stage
 CMD [ "/blog/main" ]
