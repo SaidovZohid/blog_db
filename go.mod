@@ -3,6 +3,7 @@ module github.com/SaidovZohid/blog_db
 go 1.19
 
 require (
+	github.com/bxcodec/faker/v4 v4.0.0-beta.3
 	github.com/gin-gonic/gin v1.8.1
 	github.com/go-redis/redis/v9 v9.0.0-rc.1
 	github.com/golang-jwt/jwt v3.2.2+incompatible
@@ -22,7 +23,6 @@ require (
 	github.com/KyleBanks/depth v1.2.1 // indirect
 	github.com/PuerkitoBio/purell v1.1.1 // indirect
 	github.com/PuerkitoBio/urlesc v0.0.0-20170810143723-de5bf2ad4578 // indirect
-	github.com/bxcodec/faker/v4 v4.0.0-beta.3 // indirect
 	github.com/cespare/xxhash/v2 v2.1.2 // indirect
 	github.com/davecgh/go-spew v1.1.1 // indirect
 	github.com/dgryski/go-rendezvous v0.0.0-20200823014737-9f7001d12a5f // indirect
