@@ -102,9 +102,6 @@ definitions:
         minLength: 2
         type: string
       gender:
-        enum:
-        - male
-        - female
         type: string
       last_name:
         maxLength: 30
@@ -336,7 +333,6 @@ definitions:
     - code
     - email
     type: object
-host: localhost:8080
 info:
   contact: {}
   description: This is a blog service api.
@@ -1155,8 +1151,6 @@ paths:
           description: Internal Server Error
           schema:
             $ref: '#/definitions/models.ResponseError'
-      security:
-      - ApiKeyAuth: []
       summary: Get user
       tags:
       - user

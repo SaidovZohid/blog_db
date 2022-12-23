@@ -5,7 +5,6 @@
         "contact": {},
         "version": "2.0"
     },
-    "host": "localhost:8080",
     "basePath": "/v1",
     "paths": {
         "/auth/forgot-password": {
@@ -1232,11 +1231,6 @@
         },
         "/users/{id}": {
             "get": {
-                "security": [
-                    {
-                        "ApiKeyAuth": []
-                    }
-                ],
                 "description": "Get user",
                 "consumes": [
                     "application/json"
@@ -1553,11 +1547,7 @@
                     "minLength": 2
                 },
                 "gender": {
-                    "type": "string",
-                    "enum": [
-                        "male",
-                        "female"
-                    ]
+                    "type": "string"
                 },
                 "last_name": {
                     "type": "string",

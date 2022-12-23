@@ -1240,11 +1240,6 @@ const docTemplate = `{
         },
         "/users/{id}": {
             "get": {
-                "security": [
-                    {
-                        "ApiKeyAuth": []
-                    }
-                ],
                 "description": "Get user",
                 "consumes": [
                     "application/json"
@@ -1561,11 +1556,7 @@ const docTemplate = `{
                     "minLength": 2
                 },
                 "gender": {
-                    "type": "string",
-                    "enum": [
-                        "male",
-                        "female"
-                    ]
+                    "type": "string"
                 },
                 "last_name": {
                     "type": "string",
@@ -1915,7 +1906,7 @@ const docTemplate = `{
 // SwaggerInfo holds exported Swagger Info so clients can modify it
 var SwaggerInfo = &swag.Spec{
 	Version:          "2.0",
-	Host:             "localhost:8080",
+	Host:             "",
 	BasePath:         "/v1",
 	Schemes:          []string{},
 	Title:            "",
