@@ -11,7 +11,7 @@ services:
       - postgres_data:/var/lib/postgresql/data
       - media:/app/media
     ports:
-      - 5432:5433
+      - 5432:5432
   redis:
     image: redis:latest
 
@@ -20,7 +20,7 @@ services:
       context: .
       dockerfile: Dockerfile
     ports:
-      - "8080:8005"
+      - "8080:8080"
     environment:
       - POSTGRES_HOST=${POSTGRES_HOST}
       - POSTGRES_PORT=${POSTGRES_PORT}

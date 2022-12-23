@@ -15,7 +15,7 @@ COPY . .
 # to install migrate
 RUN apk add curl
 RUN go build -o main cmd/main.go
-RUN 
+RUN curl -L https://github.com/golang-migrate/migrate/releases/download/v4.15.2/migrate.linux-amd64.tar.gz | tar xvz
 # -- Run stage -- 
 FROM alpine:3.16
 
@@ -27,7 +27,7 @@ COPY --from=builder /blog/migrate ./migrate
 COPY migrations ./migrations
 COPY templates ./templates
 
-EXPOSE 8005
+EXPOSE 8080
 
 # running built stage
 CMD [ "/blog/main" ]

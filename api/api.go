@@ -5,6 +5,7 @@ import (
 	"github.com/SaidovZohid/blog_db/config"
 	"github.com/SaidovZohid/blog_db/storage"
 	"github.com/gin-gonic/gin"
+	"github.com/gin-contrib/cors"
 	swaggerFiles "github.com/swaggo/files"
 	ginSwagger "github.com/swaggo/gin-swagger"
 )
@@ -25,6 +26,12 @@ type RoutetOptions struct {
 // @Security ApiKeyAuth
 func New(opt *RoutetOptions) *gin.Engine {
 	router := gin.Default()
+
+	corsConfig := cors.DefaultConfig()
+	corsConfig.AllowAllOrigins = true
+	corsConfig.AllowCredentials = true
+	corsConfig.AllowHeaders = append(corsConfig.AllowHeaders, "*")
+	router.Use(cors.New(corsConfig))
 
 	handlerV1 := v1.New(&v1.HandlerV1Options{
 		Cfg:      opt.Cfg,
